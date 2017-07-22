@@ -7,7 +7,7 @@
 #define TOKENS 60
 #define MAXSTR 1000
 #define MAXRTL 30
-#define MAXLBL 10
+#define MAXLBL 16
 
 #define CHAR      (1 << 1)
 #define SHORT     (1 << 2)
@@ -26,10 +26,11 @@
 #define BINST     (1 << 15)
 #define UNARY     (1 << 16)
 #define COPY      (1 << 17)
+#define ASM       (1 << 18)
 
 #define optype(x) (strchr("+-*/", x) ? BINST : UNARY)
 
-extern char ident[MAXRTL];
+extern char ident[], fname[];
 extern int identtype, identwidth;
 
 int strtotok(char*);

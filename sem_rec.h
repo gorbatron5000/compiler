@@ -59,7 +59,7 @@ struct symboltable {
    struct symboltable *prev;
 };
 
-struct symboltable *symtbl, *symtbltop;
+struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
 
 struct symbol _ONE = { NULL, "1", INT };
@@ -75,15 +75,34 @@ char *gtrg()
    return reg;
 }
 
+void increase_scope()
+{
+   struct symboltable *s, *t;
+
+   if (!symtbltop) {
+      symtbltop = malloc(sizeof(struct symboltable));
+      symtbltop->prev = NULL;
+   }
+   else {
+      t = symtbltop;
+      symtbltop = malloc(sizeof(struct symboltable));
+      symtbltop->prev = t;
+   }
+
+   symtbltop->slist = NULL;
+}
+
+void decrease_scope()
+{
+   symtbltop = symtbltop->prev;
+}
+
 struct symbol *add_symbol(struct symbol *s)
 {
    struct symbollist *sl = malloc(sizeof(struct symbollist));;
 
-   if (!symtbl) {
-      symtbltop = symtbl = malloc(sizeof(struct symboltable));
-      symtbl->prev = NULL;
-      symtbl->slist = NULL;
-   }
+   if (!symtbltop)
+      increase_scope();
    
    sl->ptr = s;
    sl->next = symtbltop->slist;
@@ -213,32 +232,22 @@ struct list *gtlabel()
 
 struct list *func(struct symbol *fdecl, struct symbol *fparams)
 {
-   struct symboltable *s, *t;
-
-   if (!symtbl) {
-      symtbltop = symtbl = malloc(sizeof(struct symboltable));
-      symtbltop->prev = NULL;
-   }
-   else {
-      t = symtbltop;
-      symtbltop = malloc(sizeof(struct symboltable));
-      symtbltop->prev = t;
-   }
-
-   symtbl->slist = NULL;
-
+   union semrec *s = makesemrec();
    fdecl->inittype |= FUNC;
-   return NULL;
-
+   decrease_scope();
+   sprintf(s->label, ".exit %s", fname);
+   return new_rtl(s, FUNC);
 }
 
-struct list *unary(struct list *dst, struct list *src, int oper)
+struct list *func_init()
 {
-   union semrec *s = makesemrec();
-   s->lhs = dst;
-   s->rhs = src;
-   s->op = oper;
-   return new_rtl(s, BINST);
+   union semrec *s1 = makesemrec(), *s2 = makesemrec();
+   strcpy(fname, ident);
+   sprintf(s1->label, ".ent %s", fname);
+   new_rtl(s1, ASM);
+   increase_scope();
+   sprintf(s2->label, "%s:", fname);
+   return new_rtl(s2, FUNC);
 }
 
 struct list *binst(struct list *lhs, struct list *rhs, int oper)
@@ -248,11 +257,6 @@ struct list *binst(struct list *lhs, struct list *rhs, int oper)
    s->rhs = rhs;
    s->op = oper;
    return new_rtl(s, optype(oper));
-}
-
-struct list *assign(struct list *lhs, struct list *rhs, int oper)
-{
-   return binst(lhs, rhs, '=');
 }
 
 struct list *postfix(struct list *rtl, int oper)
@@ -320,6 +324,8 @@ void print_rtls()
       else if (ptr->type == UNARY)
          printf("%s = %s;\n", ptr->sptr->lhs->dst->id,
                              ptr->sptr->rhs->dst->id);
+      else if (ptr->type == FUNC || ptr->type == ASM)
+         printf("%s\n", ptr->sptr->label);
    }
 }
 

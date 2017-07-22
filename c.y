@@ -22,7 +22,7 @@
 %type <rtl> statement lbl logical_or logical_and terminal expression
             multiplicative_expression additive_expression if_statement
             postfix_expression prefix_expression statements assignment
-            while_statement for_statement opt_expression function
+            while_statement for_statement opt_expression function R
 %type <decl> declaration vars var opt_declaration
 %type <type> arrays
 %type <num> num M type assign_oper
@@ -35,13 +35,13 @@ start:
 
 statements:
    {} |
-   '{' statements '}' {} |
+   '{' P statements '}' Q {} |
    statement statements {};
 
 statement:
    declaration ';' {} |
    assignment ';' {} |
-   function { } |
+   function {} |
    if_statement lbl    { backpatch($1->falselist, $2); } |
    while_statement lbl { backpatch($1->falselist, $2); } |
    for_statement lbl   { backpatch($1->falselist, $2); };
@@ -72,7 +72,7 @@ num:
 
 assignment:
    expression {} |
-   postfix_expression assign_oper assignment { assign($1, $3, $2); };
+   postfix_expression assign_oper assignment { binst($1, $3, $2); };
 
 assign_oper:
    '='      { $$ = '='; } |
@@ -89,7 +89,17 @@ assign_oper:
    OREQ     { $$ = OREQ; };
 
 function:
-   declaration '(' opt_declaration ')' '{' statements '}' { func($1, $3); };
+   declaration R '(' opt_declaration ')' '{' statements '}'
+            { func($1, $4); };
+
+R:
+   { $$ = func_init(); };
+
+P:
+   { increase_scope(); };
+
+Q:
+   { decrease_scope(); };
 
 opt_declaration:
    {} |
@@ -111,7 +121,8 @@ while_statement:
                  $$->falselist = $4->falselist; };
 
 for_statement:
-   FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump
+   FOR '(' opt_expression ';' lbl opt_expression ';' lbl
+           opt_expression jump ')' lbl statement jump
                {  make_jumps($6);
                   backpatch($6->truelist, $12);
                   backpatch($10, $5);
