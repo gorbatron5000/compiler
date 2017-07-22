@@ -61,7 +61,7 @@ typedef union {
    int num;
    struct list *rtl;
    struct type *type;
-   struct decl *decl;
+   struct symbol *decl;
    struct jumplist *jump;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */

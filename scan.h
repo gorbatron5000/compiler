@@ -7,6 +7,7 @@
 #define TOKENS 60
 #define MAXSTR 1000
 #define MAXRTL 30
+#define MAXLBL 10
 
 #define CHAR      (1 << 1)
 #define SHORT     (1 << 2)
@@ -20,6 +21,13 @@
 #define FUNC      (1 << 10)
 #define SYMBOL    (1 << 11)
 #define JUMP      (1 << 12)
+#define LABEL     (1 << 13)
+#define TEMPORARY (1 << 14)
+#define BINST     (1 << 15)
+#define UNARY     (1 << 16)
+#define COPY      (1 << 17)
+
+#define optype(x) (strchr("+-*/", x) ? BINST : UNARY)
 
 extern char ident[MAXRTL];
 extern int identtype, identwidth;

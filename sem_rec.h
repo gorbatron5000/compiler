@@ -5,16 +5,31 @@
 #define REGSTRING 10
 #define NUMRELOPS 2
 
-#define label_pos(rtl) (strstr(rtl->val, "___"))
 #define makejumplist() (malloc(sizeof(struct jumplist)))
 #define makelist() (malloc(sizeof(struct list)))
+#define makesemrec() (malloc(sizeof(union semrec)))
 
 struct list;
 struct jumplist;
 
+
+union semrec {
+   struct {
+      struct list *target, *test;
+   };
+   struct {
+      int op;
+      struct list *lhs, *rhs;
+   };
+   struct symbol *entry;
+   char label[MAXLBL];
+};
+
 struct list {
-   char *val, *dst;
+   int type;
+   union semrec *sptr;
    struct list *next;
+   struct symbol *dst;
    struct jumplist *truelist, *falselist;
 };
 
@@ -28,39 +43,102 @@ struct type {
    int width;
 };
 
-struct decl {
+struct symbol {
    struct type *type;
    char *id;
    int inittype;
 };
 
 struct symbollist {
-   struct decl *ptr;
+   struct symbol *ptr;
    struct symbollist *next;
 };
 
 struct symboltable {
    struct symbollist *slist;
-   struct symboltable *next;
+   struct symboltable *prev;
 };
 
 struct symboltable *symtbl, *symtbltop;
 struct list *rtls, *rtlend;
 
+struct symbol _ONE = { NULL, "1", INT };
+struct list ONE = { 0,0,0, &_ONE,0,0 };
+
 char ident[MAXRTL];
 
-struct list *insert_rtl(struct list *rtl, char *val, char *dst)
+char *gtrg()
+{
+   static int rnum;
+   static char reg[REGSTRING];
+   sprintf(reg, "t%d", rnum++);
+   return reg;
+}
+
+struct symbol *add_symbol(struct symbol *s)
+{
+   struct symbollist *sl = malloc(sizeof(struct symbollist));;
+
+   if (!symtbl) {
+      symtbltop = symtbl = malloc(sizeof(struct symboltable));
+      symtbl->prev = NULL;
+      symtbl->slist = NULL;
+   }
+   
+   sl->ptr = s;
+   sl->next = symtbltop->slist;
+   symtbltop->slist = sl;
+   
+   return sl->ptr;
+}
+
+struct symbol *temp(int type)
+{
+   struct symbol *s = malloc(sizeof(struct symbol));
+   s->inittype = type;
+   s->id = malloc(REGSTRING);
+   strcpy(s->id, gtrg());
+   return add_symbol(s);
+}
+
+struct symbol *lookup(char *id)
+{
+   struct symboltable *symtblptr;   
+   struct symbollist *symptr;
+
+   for (symtblptr = symtbltop; symtblptr; symtblptr = symtblptr->prev)
+      for (symptr = symtblptr->slist; symptr; symptr = symptr->next)
+         if (!strcmp(id, symptr->ptr->id))
+            return symptr->ptr;
+
+   printf("error in lookup\n");
+   exit(1);
+}
+
+struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
 {
    struct list *newrtl = makelist();
 
-   if (val) {
-      newrtl->val = malloc(strlen(val)+1);
-      strcpy(newrtl->val, val);
+   newrtl->sptr = s;
+   newrtl->type = type;
+
+   if (newrtl->type == BINST)
+      newrtl->dst = temp(INT);
+   else if (newrtl->type == SYMBOL)
+      newrtl->dst = s->entry;
+   else if (newrtl->type == INCR || newrtl->type == DECR) {
+      newrtl->type = BINST;
+      newrtl->dst = s->lhs->dst;
    }
-   if (dst) {
-      newrtl->dst = malloc(strlen(dst)+1);
-      strcpy(newrtl->dst, dst);
+   else if (newrtl->type == UNARY) {
+      if (!s->lhs) {
+         newrtl->dst = temp(INT);
+         s->lhs = newrtl;
+      }
+      else
+         newrtl->dst = s->lhs->dst;
    }
+
    if (rtls) {
       newrtl->next = rtl->next;
       rtl->next = newrtl;
@@ -76,27 +154,29 @@ struct list *insert_rtl(struct list *rtl, char *val, char *dst)
    return newrtl;
 }
 
-struct list *new_rtl(char *val, char *dst)
+struct list *new_rtl(union semrec *s, int type)
 {
-   return (rtlend = insert_rtl(rtlend, val, dst));
+   return (rtlend = insert_rtl(rtlend, s, type));
+}
+
+struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,
+   int test)
+{
+   union semrec *j = makesemrec();
+   *jlist = makejumplist();
+   j->target = NULL;
+   j->test = test == TRUE ? rtl : NULL;
+   (*jlist)->next = NULL;
+   (*jlist)->ptr = insert_rtl(rtl, j, JUMP);
+   return *jlist;
 }
 
 void make_jumps(struct list *rtl)
 {
-   char val[MAXRTL];
-
-   if (!rtl->truelist) {
-      rtl->truelist = makejumplist();
-      sprintf(val, "if %s goto ___", rtl->dst);
-      rtl->truelist->ptr = insert_rtl(rtl, val, NULL);
-      rtl->truelist->next = NULL;
-   }
-   if (!rtl->falselist) {
-      rtl->falselist = makejumplist();
-      sprintf(val, "goto ___");
-      rtl->falselist->ptr = insert_rtl(rtl->truelist->ptr, val, NULL);
-      rtl->falselist->next = NULL;
-   }
+   if (!rtl->truelist)
+      make_jump(rtl, &rtl->truelist, TRUE);
+   if (!rtl->falselist)
+      make_jump(rtl->truelist->ptr, &rtl->falselist, FALSE);
 }
 
 void backpatch(struct jumplist *jmps, struct list *lbl)
@@ -104,8 +184,7 @@ void backpatch(struct jumplist *jmps, struct list *lbl)
    struct jumplist *ptr;
    char *c;
    for (ptr = jmps; ptr; ptr = ptr->next)
-      if ((c = label_pos(ptr->ptr)))
-         strcpy(c, lbl->val);
+      ptr->ptr->sptr->target = lbl;
 }
 
 struct jumplist *merge(struct jumplist *l1, struct jumplist *l2)
@@ -120,40 +199,32 @@ struct jumplist *merge(struct jumplist *l1, struct jumplist *l2)
 
 struct jumplist *jump()
 {
-   char val[MAXRTL];
-   struct jumplist *j = malloc(sizeof(struct jumplist));
-   sprintf(val, "goto ___");
-   j->ptr = new_rtl(val, NULL);
-   j->next = NULL;
-   return j;
-}
-
-char *gtrg()
-{
-   static int rnum;
-   static char reg[REGSTRING];
-   sprintf(reg, "t%d", rnum++);
-   return reg;
+   struct jumplist *j = makejumplist();
+   return make_jump(rtlend, &j, FALSE);
 }
 
 struct list *gtlabel()
 {
-   char val[MAXRTL];
    static int lnum;
-   sprintf(val, "L%d", lnum++);
-   return new_rtl(val, NULL);
+   union semrec *s = makesemrec();
+   sprintf(s->label, "L%d", lnum++);
+   return new_rtl(s, LABEL);
 }
 
-struct list *func(struct decl *fdecl, struct decl *fparams)
+struct list *func(struct symbol *fdecl, struct symbol *fparams)
 {
-   struct symboltable *s = malloc(sizeof(struct symboltable));
+   struct symboltable *s, *t;
 
-   if (!symtbl)
+   if (!symtbl) {
       symtbltop = symtbl = malloc(sizeof(struct symboltable));
-   else
-      symtbltop = symtbltop->next = malloc(sizeof(struct symboltable));
+      symtbltop->prev = NULL;
+   }
+   else {
+      t = symtbltop;
+      symtbltop = malloc(sizeof(struct symboltable));
+      symtbltop->prev = t;
+   }
 
-   symtbl->next = NULL;
    symtbl->slist = NULL;
 
    fdecl->inittype |= FUNC;
@@ -161,56 +232,45 @@ struct list *func(struct decl *fdecl, struct decl *fparams)
 
 }
 
-struct list *unary(struct list *lhs, struct list *rhs, int oper)
+struct list *unary(struct list *dst, struct list *src, int oper)
 {
-   char val[MAXRTL];
-   sprintf(val, "%s %c %s", lhs->dst, oper, rhs->dst);
-   return new_rtl(val, lhs->dst);
+   union semrec *s = makesemrec();
+   s->lhs = dst;
+   s->rhs = src;
+   s->op = oper;
+   return new_rtl(s, BINST);
 }
 
 struct list *binst(struct list *lhs, struct list *rhs, int oper)
 {
-   char val[MAXRTL], *dst = gtrg();
-   sprintf(val, "%s = %s %c %s", dst, lhs->dst, oper, rhs->dst);
-   return new_rtl(val, dst);
+   union semrec *s = makesemrec();
+   s->lhs = lhs;
+   s->rhs = rhs;
+   s->op = oper;
+   return new_rtl(s, optype(oper));
 }
 
 struct list *assign(struct list *lhs, struct list *rhs, int oper)
 {
-   return unary(lhs, oper == '=' ? rhs :
-          binst(lhs, rhs, toktostr(oper)[0]), '=');
+   return binst(lhs, rhs, '=');
 }
 
 struct list *postfix(struct list *rtl, int oper)
 {
-   char val[MAXRTL], *dst = gtrg();
-   struct list *tmp;
-   sprintf(val, "%s = %s", dst, rtl->dst);
-   new_rtl(val, dst);
-   sprintf(val, "%s = %s %c 1", rtl->dst, rtl->dst, toktostr(oper)[0]);
-   return new_rtl(val, dst);
+   union semrec *s1 = makesemrec(), *s2 = makesemrec(), *s3 = makesemrec();
+   s1->rhs = s2->lhs = s3->lhs = rtl;
+   s2->rhs = &ONE;
+   s3->rhs = new_rtl(s1, UNARY);
+   s2->op = toktostr(oper)[0];
+   new_rtl(s2, oper);
+   return new_rtl(s3, UNARY);
 }
 
 struct list *terminal()
 {
-   return new_rtl(NULL, yylval.str);
-}
-
-struct decl *add_decl(struct decl *d)
-{
-   struct symbollist *s;
-
-   if (!symtbl) {
-      symtbltop = symtbl = malloc(sizeof(struct symboltable));
-      symtbl->next = NULL;
-      symtbl->slist = NULL;
-   }
-   
-   for (s = symtbltop->slist; s; s = s->next);
-   s = malloc(sizeof(struct symbollist));
-   s->ptr = d;
-   
-   return s->ptr;
+   union semrec *s = makesemrec();
+   s->entry = lookup(yylval.str);
+   return new_rtl(s, SYMBOL);
 }
 
 struct type *type(struct type *t, int sz)
@@ -221,30 +281,46 @@ struct type *type(struct type *t, int sz)
    return tt;
 }
 
-struct decl *decl(struct type *type)
+struct symbol *symbol(struct type *type)
 {
-   struct decl *d = malloc(sizeof(struct decl));
+   struct symbol *s = malloc(sizeof(struct symbol));
 
    if (type)
-      d->type = type;
+      s->type = type;
    else {
-      d->type = malloc(sizeof(struct type));
-      d->type->type = NULL;
-      d->type->width = identwidth;
+      s->type = malloc(sizeof(struct type));
+      s->type->type = NULL;
+      s->type->width = identwidth;
    }
    
-   d->inittype = identtype;
-   d->id = malloc(strlen(ident)+1);
-   strcpy(d->id, ident);
-   return add_decl(d);
+   s->inittype = identtype;
+   s->id = malloc(strlen(ident)+1);
+   strcpy(s->id, ident);
+   return add_symbol(s);
 }
 
 void print_rtls()
 {
    struct list *ptr;
-   for (ptr = rtls; ptr; ptr = ptr->next)
-      if (ptr->val)
-         printf("%s\n", ptr->val);
+   for (ptr = rtls; ptr; ptr = ptr->next) {
+      if (ptr->type == LABEL)
+         printf("%s\n", ptr->sptr->label);
+      else if (ptr->type == BINST)
+         printf("%s = %s %c %s;\n", ptr->dst->id,
+                                   ptr->sptr->lhs->dst->id,
+                                   ptr->sptr->op,
+                                   ptr->sptr->rhs->dst->id);
+      else if (ptr->type == JUMP) {
+         if (ptr->sptr->test)
+            printf("if %s goto %s\n", ptr->sptr->test->dst->id,
+                                      ptr->sptr->target->sptr->label);
+         else
+            printf("goto %s\n", ptr->sptr->target->sptr->label);
+      }
+      else if (ptr->type == UNARY)
+         printf("%s = %s;\n", ptr->sptr->lhs->dst->id,
+                             ptr->sptr->rhs->dst->id);
+   }
 }
 
 /*

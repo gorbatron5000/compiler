@@ -32,7 +32,7 @@ typedef union {
    int num;
    struct list *rtl;
    struct type *type;
-   struct decl *decl;
+   struct symbol *decl;
    struct jumplist *jump;
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
@@ -659,7 +659,7 @@ case 15:
 break;
 case 16:
 #line 61 "c.y"
-	{ yyval.decl = decl(yystack.l_mark[0].type); }
+	{ yyval.decl = symbol(yystack.l_mark[0].type); }
 break;
 case 17:
 #line 64 "c.y"

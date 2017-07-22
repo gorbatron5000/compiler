@@ -8,7 +8,7 @@
    int num;
    struct list *rtl;
    struct type *type;
-   struct decl *decl;
+   struct symbol *decl;
    struct jumplist *jump;
 };
 
@@ -58,7 +58,7 @@ vars:
    var ',' vars {};
 
 var:
-   IDENTIFIER M arrays { $$ = decl($3); };
+   IDENTIFIER M arrays { $$ = symbol($3); };
 
 M:
    { strcpy(ident, yylval.str); };
