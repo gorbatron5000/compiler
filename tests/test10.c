@@ -8,4 +8,4 @@ int foo()
    c = a+b;
 }
 
-d = e + f;
+++d;

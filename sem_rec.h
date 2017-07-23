@@ -8,64 +8,19 @@
 #define makejumplist() (malloc(sizeof(struct jumplist)))
 #define makelist() (malloc(sizeof(struct list)))
 #define makesemrec() (malloc(sizeof(union semrec)))
-
-struct list;
-struct jumplist;
-
-
-union semrec {
-   struct {
-      struct list *target, *test;
-   };
-   struct {
-      int op;
-      struct list *lhs, *rhs;
-   };
-   struct symbol *entry;
-   char label[MAXLBL];
-};
-
-struct list {
-   int type;
-   union semrec *sptr;
-   struct list *next;
-   struct symbol *dst;
-   struct jumplist *truelist, *falselist;
-};
-
-struct jumplist {
-   struct list *ptr;
-   struct jumplist *next;
-};
-
-struct type {
-   struct type *type;
-   int width;
-};
-
-struct symbol {
-   struct type *type;
-   char *id;
-   int inittype;
-};
-
-struct symbollist {
-   struct symbol *ptr;
-   struct symbollist *next;
-};
-
-struct symboltable {
-   struct symbollist *slist;
-   struct symboltable *prev;
-};
+#define maketype() (malloc(sizeof(struct type)))
 
 struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
-
-struct symbol _ONE = { NULL, "1", INT };
+struct symbol _ONE = { NULL, "1" };
 struct list ONE = { 0,0,0, &_ONE,0,0 };
 
-char ident[MAXRTL];
+struct type *makebasetype(int type)
+{
+   struct type *t = maketype();
+   t->base = type;
+   return t;
+}
 
 char *gtrg()
 {
@@ -114,7 +69,7 @@ struct symbol *add_symbol(struct symbol *s)
 struct symbol *temp(int type)
 {
    struct symbol *s = malloc(sizeof(struct symbol));
-   s->inittype = type;
+   s->type = makebasetype(INT);
    s->id = malloc(REGSTRING);
    strcpy(s->id, gtrg());
    return add_symbol(s);
@@ -233,7 +188,7 @@ struct list *gtlabel()
 struct list *func(struct symbol *fdecl, struct symbol *fparams)
 {
    union semrec *s = makesemrec();
-   fdecl->inittype |= FUNC;
+   fdecl->type = makebasetype(FUNC);
    decrease_scope();
    sprintf(s->label, ".exit %s", fname);
    return new_rtl(s, FUNC);
@@ -255,8 +210,8 @@ struct list *binst(struct list *lhs, struct list *rhs, int oper)
    union semrec *s = makesemrec();
    s->lhs = lhs;
    s->rhs = rhs;
-   s->op = oper;
-   return new_rtl(s, optype(oper));
+   s->op = oper > 256 ? toktostr(oper)[0] : oper;
+   return new_rtl(s, oper == INCR || oper == DECR ? oper : optype(oper));
 }
 
 struct list *postfix(struct list *rtl, int oper)
@@ -270,11 +225,13 @@ struct list *postfix(struct list *rtl, int oper)
    return new_rtl(s3, UNARY);
 }
 
-struct list *terminal()
+struct symbol *symbol(struct type *t1, struct type *t2)
 {
-   union semrec *s = makesemrec();
-   s->entry = lookup(yylval.str);
-   return new_rtl(s, SYMBOL);
+   struct symbol *s = malloc(sizeof(struct symbol));
+   s->type = t2 ? (t2->type = t1->type) : (t2 = t1);
+   s->id = malloc(strlen(ident)+1);
+   strcpy(s->id, ident);
+   return add_symbol(s);
 }
 
 struct type *type(struct type *t, int sz)
@@ -285,22 +242,14 @@ struct type *type(struct type *t, int sz)
    return tt;
 }
 
-struct symbol *symbol(struct type *type)
+struct list *terminal(int type)
 {
-   struct symbol *s = malloc(sizeof(struct symbol));
-
-   if (type)
-      s->type = type;
-   else {
-      s->type = malloc(sizeof(struct type));
-      s->type->type = NULL;
-      s->type->width = identwidth;
-   }
-   
-   s->inittype = identtype;
-   s->id = malloc(strlen(ident)+1);
-   strcpy(s->id, ident);
-   return add_symbol(s);
+   union semrec *s = makesemrec();
+   if (type == IDENTIFIER)
+      s->entry = lookup(yylval.str);
+   else if (type == NUMBER)
+      s->entry = symbol(makebasetype(INT), NULL);
+   return new_rtl(s, SYMBOL);
 }
 
 void print_rtls()

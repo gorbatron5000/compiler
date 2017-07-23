@@ -1,6 +1,8 @@
 %{
 #include "scan.h"
 #include "sem_rec.h"
+
+extern struct list ONE;
 %}
 
 %union {
@@ -22,9 +24,10 @@
 %type <rtl> statement lbl logical_or logical_and terminal expression
             multiplicative_expression additive_expression if_statement
             postfix_expression prefix_expression statements assignment
-            while_statement for_statement opt_expression function R
+            while_statement for_statement opt_expression function R 
+            arrayref
 %type <decl> declaration vars var opt_declaration
-%type <type> arrays
+%type <type> arrays addresses
 %type <num> num M type assign_oper
 %type <jump> jump
 
@@ -58,7 +61,12 @@ vars:
    var ',' vars {};
 
 var:
-   IDENTIFIER M arrays { $$ = symbol($3); };
+   addresses IDENTIFIER M arrays { $$ = symbol($1, $4); };
+
+addresses:
+   { $$ = makebasetype(identtype); } |
+   '*' addresses { $$ = type($2, 1); } |
+   '&' addresses { $$ = type($2, 1); };
 
 M:
    { strcpy(ident, yylval.str); };
@@ -179,13 +187,20 @@ postfix_expression:
 
 prefix_expression:
    terminal      { $$ = $1; } |
-   INCR terminal {} |
-   DECR terminal {};
+   terminal '[' arrayref { } |
+   INCR terminal { binst($2, &ONE, INCR); } |
+   DECR terminal { binst($2, &ONE, DECR); };
+
+arrayref:
+   {} |
+   '[' arrayref {} |
+   num ']' arrayref {};
 
 terminal:
-   TRUE       { $$ = terminal(); } |
-   FALSE      { $$ = terminal(); } |
-   IDENTIFIER { $$ = terminal(); };
+   TRUE       { $$ = terminal(TRUE); } |
+   FALSE      { $$ = terminal(FALSE); } |
+   M IDENTIFIER { $$ = terminal(IDENTIFIER); } |
+   M NUMBER     { $$ = terminal(NUMBER); };
 
 lbl:
    { $$ = gtlabel(); };

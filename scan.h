@@ -27,9 +27,61 @@
 #define UNARY     (1 << 16)
 #define COPY      (1 << 17)
 #define ASM       (1 << 18)
+#define ADDRESS       (1 << 19)
 
 #define optype(x) (strchr("+-*/", x) ? BINST : UNARY)
 
+struct list;
+struct jumplist;
+
+union semrec {
+   struct {
+      struct list *target, *test;
+   };
+   struct {
+      int op;
+      struct list *lhs, *rhs;
+   };
+   struct symbol *entry;
+   char label[MAXLBL];
+};
+
+struct list {
+   int type;
+   union semrec *sptr;
+   struct list *next;
+   struct symbol *dst;
+   struct jumplist *truelist, *falselist;
+};
+
+struct jumplist {
+   struct list *ptr;
+   struct jumplist *next;
+};
+
+struct type {
+   struct type *type;
+   int width;
+   int base;
+};
+
+struct symbol {
+   struct type *type;
+   char *id;
+};
+
+struct symbollist {
+   struct symbol *ptr;
+   struct symbollist *next;
+};
+
+struct symboltable {
+   struct symbollist *slist;
+   struct symboltable *prev;
+};
+
+extern struct symbol _ONE;
+extern struct list ONE;
 extern char ident[], fname[];
 extern int identtype, identwidth;
 
