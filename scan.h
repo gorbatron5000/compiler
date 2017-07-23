@@ -29,8 +29,10 @@
 #define ASM       (1 << 18)
 #define ADDRESS   (1 << 19)
 #define LONGLONG  (1 << 20)
+#define ACC       (1 << 21)
+#define EMPTY     (1 << 22)
 
-#define optype(x) (strchr("+-*/", x) ? BINST : UNARY)
+#define optype(x) (strchr("+-*/", x) ? BINST : COPY)
 
 struct list;
 struct jumplist;
@@ -81,9 +83,7 @@ struct symboltable {
    struct symboltable *prev;
 };
 
-extern struct symbol _ONE;
-extern struct list ONE;
-extern char ident[], fname[];
+extern char ident[], ident2[], fname[];
 extern int identtype, identwidth;
 
 int strtotok(char*);

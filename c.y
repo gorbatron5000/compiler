@@ -1,9 +1,6 @@
 %{
 #include "scan.h"
 #include "sem_rec.h"
-
-extern struct list ONE;
-int d;
 %}
 
 %union {
@@ -25,12 +22,13 @@ int d;
 %type <rtl> statement lbl logical_or logical_and terminal expression
             multiplicative_expression additive_expression if_statement
             postfix_expression prefix_expression statements assignment
-            while_statement for_statement opt_expression function R 
-            arrayref
+            while_statement for_statement opt_expression function E
+            arrayref N
 %type <decl> declaration vars var opt_declaration
 %type <type> arrays addresses
-%type <num> num M type assign_oper
+%type <num> num type assign_oper
 %type <jump> jump
+%type <str> IDENTIFIER NUMBER
 
 %%
 
@@ -43,7 +41,7 @@ statements:
    statement statements {};
 
 statement:
-   declaration ';' { print_decls();} |
+   declaration ';' {} |
    assignment ';' {} |
    function {} |
    if_statement lbl    { backpatch($1->falselist, $2); } |
@@ -51,26 +49,23 @@ statement:
    for_statement lbl   { backpatch($1->falselist, $2); };
 
 declaration:
-   type vars {};
+   type vars { $$ = $2; };
 
 type:
    INT_   { identtype = INT;   identwidth = 4; } |
    FLOAT_ { identtype = FLOAT; identwidth = 8; };
 
 vars:
-   var {} |
-   var ',' vars {};
+   var { $$ = $1; } |
+   var ',' vars { $$ = $1; };
 
 var:
-   addresses IDENTIFIER M arrays { $$ = symbol(join($4, $1)); };
+   addresses IDENTIFIER arrays { $$ = symbol($2, join($3, $1)); };
 
 addresses:
    { $$ = makebasetype(identtype); } |
    '*' addresses { $$ = type($2, 1); } |
    '&' addresses { $$ = type($2, 1); };
-
-M:
-   { strcpy(ident, yylval.str); };
 
 arrays:
    {} |
@@ -98,11 +93,11 @@ assign_oper:
    OREQ     { $$ = OREQ; };
 
 function:
-   declaration R '(' opt_declaration ')' '{' statements '}'
-            { func($1, $4); };
+   declaration E '(' opt_declaration ')' '{' statements '}'
+            { func($1, $4, $2); };
 
-R:
-   { $$ = func_init(); };
+E:
+   { $$ = empty(); };
 
 P:
    { increase_scope(); };
@@ -141,7 +136,7 @@ for_statement:
 
 opt_expression:
    {} |
-   expression { $$ = $1; };
+   assignment { $$ = $1; };
 
 jump:
    { $$ = jump(); };
@@ -188,19 +183,22 @@ postfix_expression:
 
 prefix_expression:
    terminal { } |
-   INCR terminal { binst($2, &ONE, INCR); } |
-   DECR terminal { binst($2, &ONE, DECR); };
+   INCR terminal { binst($2, makeimmediate(1), INCR); } |
+   DECR terminal { binst($2, makeimmediate(1), DECR); };
 
 arrayref:
-   { arrayref(1); } |
-   arrayref '[' expression ']' { printf("imm is %s\n", $3->sptr->entry->id);
-               binst($3, makeimmediate(arrayref(0)->width), '*'); };
+   { $$ = arrayref(NULL, NULL); } |
+   arrayref '[' expression ']' { $$ = arrayref($<str>0, $3); };
 
 terminal:
-   TRUE         { $$ = terminal(TRUE); } |
-   FALSE        { $$ = terminal(FALSE); } |
-   M IDENTIFIER arrayref { $$ = terminal(IDENTIFIER); } |
-   M NUMBER     { $$ = terminal(NUMBER); };
+   TRUE         { $$ = terminal(TRUE, NULL); } |
+   FALSE        { $$ = terminal(FALSE, NULL); } |
+   IDENTIFIER arrayref { $$ = $2 ? binst(terminal(IDENTIFIER,$1), $2, '+')
+                                   : terminal(IDENTIFIER, $1); } |
+   NUMBER     { $$ = terminal(NUMBER, $1); };
+
+N:
+   { strcpy(ident2, yylval.str); };
 
 lbl:
    { $$ = gtlabel(); };
@@ -212,5 +210,5 @@ int main() {
 }
 
 int yyerror(const char *d) {
-   fprintf(stderr, "failed to parse\n");
+   fprintf(stderr, "failed to parse %s\n", yylval.str);
 }

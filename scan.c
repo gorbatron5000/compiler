@@ -21,7 +21,7 @@ int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,
       ANDEQ, XOREQ, OREQ, LSHIFT, RSHIFT, INCR, DECR, GTEQ, LTEQ, EQ, NEQ,
       LAND, LOR, TRUE, FALSE, '+', '-', '*', '/', '=', '!'};
 
-char ident[MAXRTL], fname[MAXLBL];
+char ident[MAXRTL], fname[MAXLBL], ident2[MAXRTL];
 int identtype, identwidth;
 
 int strtotok(char *str)
@@ -30,6 +30,8 @@ int strtotok(char *str)
    for (i = 0; i < TOKENS; i++)
       if (!strcmp(token_strings[i], str))
          return token_vals[i];
+   yylval.str = malloc(strlen(str)+1);
+   strcpy(yylval.str, str);
    return IDENTIFIER;
 }
 

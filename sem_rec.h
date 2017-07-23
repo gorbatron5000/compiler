@@ -14,8 +14,6 @@
 
 struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
-struct symbol _ONE = { NULL, "1" };
-struct list ONE = { 0,0,0, &_ONE,0,0 };
 
 int widthof(int token)
 {
@@ -86,7 +84,7 @@ struct symbol *add_symbol(struct symbol *s)
    sl->ptr = s;
    sl->next = symtbltop->slist;
    symtbltop->slist = sl;
-   
+
    return sl->ptr;
 }
 
@@ -109,7 +107,7 @@ struct symbol *lookup(char *id)
          if (!strcmp(id, symptr->ptr->id))
             return symptr->ptr;
 
-   printf("error in lookup\n");
+   printf("error in lookup: %s\n", id);
    exit(1);
 }
 
@@ -124,11 +122,13 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
       newrtl->dst = temp(INT);
    else if (newrtl->type == SYMBOL)
       newrtl->dst = s->entry;
-   else if (newrtl->type == INCR || newrtl->type == DECR) {
+   else if (newrtl->type == ACC) {
       newrtl->type = BINST;
       newrtl->dst = s->lhs->dst;
    }
-   else if (newrtl->type == UNARY) {
+   else if (newrtl->type == TEMPORARY)
+      newrtl->dst = temp(INT);
+   else if (newrtl->type == COPY) {
       if (!s->lhs) {
          newrtl->dst = temp(INT);
          s->lhs = newrtl;
@@ -209,24 +209,22 @@ struct list *gtlabel()
    return new_rtl(s, LABEL);
 }
 
-struct list *func(struct symbol *fdecl, struct symbol *fparams)
+struct list *func(struct symbol *fdecl, struct symbol *fparams,
+   struct list *funcinit)
 {
    union semrec *s = makesemrec();
+   sprintf(funcinit->sptr->label, "%s():", fdecl->id);
+   funcinit->type = FUNC;
    fdecl->type = makebasetype(FUNC);
    decrease_scope();
-   sprintf(s->label, ".exit %s", fname);
+   sprintf(s->label, ".exit %s", fdecl->id);
    return new_rtl(s, FUNC);
 }
 
-struct list *func_init()
+struct list *empty()
 {
-   union semrec *s1 = makesemrec(), *s2 = makesemrec();
-   strcpy(fname, ident);
-   sprintf(s1->label, ".ent %s", fname);
-   new_rtl(s1, ASM);
-   increase_scope();
-   sprintf(s2->label, "%s:", fname);
-   return new_rtl(s2, FUNC);
+   union semrec *s = makesemrec();
+   return new_rtl(s, EMPTY);
 }
 
 struct list *binst(struct list *lhs, struct list *rhs, int oper)
@@ -235,21 +233,48 @@ struct list *binst(struct list *lhs, struct list *rhs, int oper)
    s->lhs = lhs;
    s->rhs = rhs;
    s->op = oper > 256 ? toktostr(oper)[0] : oper;
-   return new_rtl(s, oper == INCR || oper == DECR ? oper : optype(oper));
+   return new_rtl(s, oper == INCR || oper == DECR ? ACC : optype(oper));
+}
+
+struct list *maketemporary()
+{
+   struct list *newrtl;
+   return new_rtl(makesemrec(), TEMPORARY);
+}
+
+struct list *copy(struct list *dst, struct list *src)
+{
+   union semrec *s = makesemrec();
+   s->lhs = dst ? dst : maketemporary();
+   s->rhs = src;
+   s->op = '=';
+   return new_rtl(s, COPY);
+}
+
+struct list *makeimmediate(int d)
+{
+   union semrec *s = makesemrec();
+   char tmp[MAXRTL];
+   s->entry = malloc(sizeof(struct symbol));
+   s->entry->type = makebasetype(INT);
+   sprintf(tmp, "%d", d);
+   s->entry->id = malloc(strlen(tmp)+1);
+   strcpy(s->entry->id, tmp);
+   return new_rtl(s, SYMBOL);
 }
 
 struct list *postfix(struct list *rtl, int oper)
 {
    union semrec *s1 = makesemrec(), *s2 = makesemrec(), *s3 = makesemrec();
    s1->rhs = s2->lhs = s3->lhs = rtl;
-   s2->rhs = &ONE;
-   s3->rhs = new_rtl(s1, UNARY);
+   s2->rhs = makeimmediate(1);
+   s3->rhs = new_rtl(s1, COPY);
    s2->op = toktostr(oper)[0];
-   new_rtl(s2, oper);
-   return new_rtl(s3, UNARY);
+   new_rtl(s2, ACC);
+   return new_rtl(s3, COPY);
 }
 
-struct symbol *symbol(struct type *t)
+struct symbol *symbol(char *ident, struct type *t)
 {
    struct symbol *s = malloc(sizeof(struct symbol));
    s->type = t;
@@ -263,47 +288,48 @@ struct type *type(struct type *t, int sz)
    struct type *tt = malloc(sizeof(struct type));
    tt->type = t;
    tt->width = t ? sz * t->width : sz * identwidth;
-   printf("width is %d\n", tt->width);
    return tt;
 }
 
-struct list *terminal(int type)
+struct list *identifier(char *ident)
 {
    union semrec *s = makesemrec();
-   if (type == IDENTIFIER)
-      s->entry = lookup(ident);
-   else if (type == NUMBER)
-      s->entry = symbol(makebasetype(INT));
+   s->entry = lookup(ident);
    return new_rtl(s, SYMBOL);
 }
 
-struct list *makeimmediate(int d)
+struct list *terminal(int type, char *str)
 {
    union semrec *s = makesemrec();
-   char tmp[MAXRTL];
-   s->entry = malloc(sizeof(struct symbol));
-   s->entry->type = NULL;
-   sprintf(tmp, "%d", d);
-   s->entry->id = malloc(strlen(tmp)+1);
-   strcpy(s->entry->id, tmp);
-   return new_rtl(s, NUMBER);
+   if (type == IDENTIFIER)
+      s->entry = lookup(str);
+   else if (type == NUMBER)
+      return makeimmediate(atoi(str));
+   return new_rtl(s, SYMBOL);
 }
 
-struct type *arrayref(int reset)
+struct list *accumulator(struct list *r1, struct list *r2, int op)
+{
+   union semrec *s = makesemrec();
+   s->lhs = r1;
+   s->rhs = r2;
+   s->op = op;
+   return new_rtl(s, ACC);
+}
+
+struct list *arrayref(char *ident, struct list *rtl)
 {
    static struct type *tptr;
-   printf("1tptr is %p ident is %s\n", tptr, ident);
-   tptr = reset == 1 ? NULL : tptr ? tptr->type : lookup(ident)->type;
-   printf("2tptr is %p ident is %s\n", tptr, ident);
-   if (!reset)
-   tptr->width = 1;
-   if (!tptr)
-      printf("lookup returns: %p %p %p\n", lookup(ident), lookup(ident)->type, tptr);
-   if (!tptr)
-      printf("tptr is null %s %d %p\n", ident, reset, tptr);
-   else
-      printf("tptr is not null\n");
-   return tptr;
+   static struct list *acc;
+   struct list *rhs;
+    
+   if (!rtl)
+      return (acc = (struct list*) (tptr = NULL));
+
+   tptr = tptr ? tptr->type : lookup(ident)->type->type;
+   acc = acc ? acc : copy(maketemporary(), makeimmediate(0));
+   rhs = binst(rtl, makeimmediate(tptr->width), '*');
+   return accumulator(acc, rhs, '+');
 }
 
 void print_rtls()
@@ -324,7 +350,7 @@ void print_rtls()
          else
             printf("goto %s\n", ptr->sptr->target->sptr->label);
       }
-      else if (ptr->type == UNARY)
+      else if (ptr->type == COPY)
          printf("%s = %s;\n", ptr->sptr->lhs->dst->id,
                              ptr->sptr->rhs->dst->id);
       else if (ptr->type == FUNC || ptr->type == ASM)
