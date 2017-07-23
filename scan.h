@@ -27,7 +27,8 @@
 #define UNARY     (1 << 16)
 #define COPY      (1 << 17)
 #define ASM       (1 << 18)
-#define ADDRESS       (1 << 19)
+#define ADDRESS   (1 << 19)
+#define LONGLONG  (1 << 20)
 
 #define optype(x) (strchr("+-*/", x) ? BINST : UNARY)
 

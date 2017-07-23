@@ -10,15 +10,39 @@
 #define makesemrec() (malloc(sizeof(union semrec)))
 #define maketype() (malloc(sizeof(struct type)))
 
+#define DECLTYPES 9
+
 struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
 struct symbol _ONE = { NULL, "1" };
 struct list ONE = { 0,0,0, &_ONE,0,0 };
 
+int widthof(int token)
+{
+   int i, tokentypes[] = { CHAR, SHORT, INT, FLOAT, DOUBLE, LONG,
+                           LONGLONG, POINTER, ARRAY },
+          tokenwidths[] = { 1, 2, 4, 4, 8, 4, 8, 4, 4 };
+
+   for (i = 0; i < DECLTYPES; i++)
+      if (token == tokentypes[i])
+         return tokenwidths[i];
+
+   return 0;
+}
+
+struct type *join(struct type *t1, struct type *t2)
+{
+   struct type *tptr;
+   for (tptr = t1; tptr && tptr->type; tptr = tptr->type);
+   tptr ? (tptr->type = t2) : (t1 = t2);
+   return t1;
+}
+
 struct type *makebasetype(int type)
 {
    struct type *t = maketype();
    t->base = type;
+   t->width = widthof(type);
    return t;
 }
 
@@ -225,10 +249,10 @@ struct list *postfix(struct list *rtl, int oper)
    return new_rtl(s3, UNARY);
 }
 
-struct symbol *symbol(struct type *t1, struct type *t2)
+struct symbol *symbol(struct type *t)
 {
    struct symbol *s = malloc(sizeof(struct symbol));
-   s->type = t2 ? (t2->type = t1->type) : (t2 = t1);
+   s->type = t;
    s->id = malloc(strlen(ident)+1);
    strcpy(s->id, ident);
    return add_symbol(s);
@@ -239,6 +263,7 @@ struct type *type(struct type *t, int sz)
    struct type *tt = malloc(sizeof(struct type));
    tt->type = t;
    tt->width = t ? sz * t->width : sz * identwidth;
+   printf("width is %d\n", tt->width);
    return tt;
 }
 
@@ -246,10 +271,39 @@ struct list *terminal(int type)
 {
    union semrec *s = makesemrec();
    if (type == IDENTIFIER)
-      s->entry = lookup(yylval.str);
+      s->entry = lookup(ident);
    else if (type == NUMBER)
-      s->entry = symbol(makebasetype(INT), NULL);
+      s->entry = symbol(makebasetype(INT));
    return new_rtl(s, SYMBOL);
+}
+
+struct list *makeimmediate(int d)
+{
+   union semrec *s = makesemrec();
+   char tmp[MAXRTL];
+   s->entry = malloc(sizeof(struct symbol));
+   s->entry->type = NULL;
+   sprintf(tmp, "%d", d);
+   s->entry->id = malloc(strlen(tmp)+1);
+   strcpy(s->entry->id, tmp);
+   return new_rtl(s, NUMBER);
+}
+
+struct type *arrayref(int reset)
+{
+   static struct type *tptr;
+   printf("1tptr is %p ident is %s\n", tptr, ident);
+   tptr = reset == 1 ? NULL : tptr ? tptr->type : lookup(ident)->type;
+   printf("2tptr is %p ident is %s\n", tptr, ident);
+   if (!reset)
+   tptr->width = 1;
+   if (!tptr)
+      printf("lookup returns: %p %p %p\n", lookup(ident), lookup(ident)->type, tptr);
+   if (!tptr)
+      printf("tptr is null %s %d %p\n", ident, reset, tptr);
+   else
+      printf("tptr is not null\n");
+   return tptr;
 }
 
 void print_rtls()
@@ -278,16 +332,16 @@ void print_rtls()
    }
 }
 
-/*
 void print_decls()
 {
-   struct symbol *sptr;
+   struct symboltable *sptr;
+   struct symbollist *slptr;
    struct type *tptr;
-   for (sptr = symboltable; sptr; sptr = sptr->next) {
-      printf("id: %s ", sptr->ptr->id);
-      for (tptr = sptr->ptr->type; tptr; tptr = tptr->type)
-         printf("width: %d ", tptr->width);
-      printf("\n");
-   }
+   for (sptr = symtbltop; sptr; sptr = sptr->prev)
+      for (slptr = sptr->slist; slptr; slptr = slptr->next) {
+         printf("id: %s ", slptr->ptr->id);
+         for (tptr = slptr->ptr->type; tptr; tptr = tptr->type)
+            printf("width: %d ", tptr->width);
+         printf("\n");
+      }
 }
-*/

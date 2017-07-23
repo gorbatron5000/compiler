@@ -3,6 +3,7 @@
 #include "sem_rec.h"
 
 extern struct list ONE;
+int d;
 %}
 
 %union {
@@ -42,7 +43,7 @@ statements:
    statement statements {};
 
 statement:
-   declaration ';' {} |
+   declaration ';' { print_decls();} |
    assignment ';' {} |
    function {} |
    if_statement lbl    { backpatch($1->falselist, $2); } |
@@ -61,7 +62,7 @@ vars:
    var ',' vars {};
 
 var:
-   addresses IDENTIFIER M arrays { $$ = symbol($1, $4); };
+   addresses IDENTIFIER M arrays { $$ = symbol(join($4, $1)); };
 
 addresses:
    { $$ = makebasetype(identtype); } |
@@ -186,20 +187,19 @@ postfix_expression:
    prefix_expression DECR { $$ = postfix($1, DECR); };
 
 prefix_expression:
-   terminal      { $$ = $1; } |
-   terminal '[' arrayref { } |
+   terminal { } |
    INCR terminal { binst($2, &ONE, INCR); } |
    DECR terminal { binst($2, &ONE, DECR); };
 
 arrayref:
-   {} |
-   '[' arrayref {} |
-   num ']' arrayref {};
+   { arrayref(1); } |
+   arrayref '[' expression ']' { printf("imm is %s\n", $3->sptr->entry->id);
+               binst($3, makeimmediate(arrayref(0)->width), '*'); };
 
 terminal:
-   TRUE       { $$ = terminal(TRUE); } |
-   FALSE      { $$ = terminal(FALSE); } |
-   M IDENTIFIER { $$ = terminal(IDENTIFIER); } |
+   TRUE         { $$ = terminal(TRUE); } |
+   FALSE        { $$ = terminal(FALSE); } |
+   M IDENTIFIER arrayref { $$ = terminal(IDENTIFIER); } |
    M NUMBER     { $$ = terminal(NUMBER); };
 
 lbl:
