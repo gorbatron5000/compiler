@@ -14,6 +14,8 @@
 
 struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
+struct symbollist *params;
+int parameter;
 
 int widthof(int token)
 {
@@ -76,10 +78,24 @@ void decrease_scope()
 
 struct symbol *add_symbol(struct symbol *s)
 {
-   struct symbollist *sl = malloc(sizeof(struct symbollist));;
+   struct symbollist *ptr, *sl = malloc(sizeof(struct symbollist));
 
    if (!symtbltop)
       increase_scope();
+
+   if (parameter) {
+      if (!params) {
+         params = malloc(sizeof(struct symbollist));
+         params->ptr = s;
+      }
+      else {
+         for (ptr = params; ptr && ptr->next; ptr = ptr->next);
+         ptr = ptr->next = malloc(sizeof(struct symbollist));
+         ptr->ptr = s;
+         ptr->next = NULL;
+      }
+   }
+
    
    sl->ptr = s;
    sl->next = symtbltop->slist;

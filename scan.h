@@ -31,11 +31,13 @@
 #define LONGLONG  (1 << 20)
 #define ACC       (1 << 21)
 #define EMPTY     (1 << 22)
+#define PARAM     (1 << 23)
 
 #define optype(x) (strchr("+-*/", x) ? BINST : COPY)
 
 struct list;
 struct jumplist;
+struct symbollist;
 
 union semrec {
    struct {
@@ -71,6 +73,7 @@ struct type {
 struct symbol {
    struct type *type;
    char *id;
+   struct symbollist *params;
 };
 
 struct symbollist {
@@ -83,8 +86,8 @@ struct symboltable {
    struct symboltable *prev;
 };
 
-extern char ident[], ident2[], fname[];
-extern int identtype, identwidth;
+extern int identtype, identwidth, parameterlist;
+extern struct symbollist *params;
 
 int strtotok(char*);
 char *toktostr(int);

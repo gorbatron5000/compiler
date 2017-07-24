@@ -23,7 +23,7 @@
             multiplicative_expression additive_expression if_statement
             postfix_expression prefix_expression statements assignment
             while_statement for_statement opt_expression function E
-            arrayref N
+            arrayref
 %type <decl> declaration vars var opt_declaration
 %type <type> arrays addresses
 %type <num> num type assign_oper
@@ -93,11 +93,14 @@ assign_oper:
    OREQ     { $$ = OREQ; };
 
 function:
+   declaration E '(' opt_declaration ')' ';' {} |
    declaration E '(' opt_declaration ')' '{' statements '}'
             { func($1, $4, $2); };
 
 E:
-   { $$ = empty(); };
+   { params = malloc(sizeof(struct symbollist));
+     parameter = 1;
+     $$ = empty(); };
 
 P:
    { increase_scope(); };
@@ -106,7 +109,7 @@ Q:
    { decrease_scope(); };
 
 opt_declaration:
-   {} |
+   { parameter = 0; } |
    declaration { $$ = $1; };
 
 if_statement:
@@ -196,9 +199,6 @@ terminal:
    IDENTIFIER arrayref { $$ = $2 ? binst(terminal(IDENTIFIER,$1), $2, '+')
                                    : terminal(IDENTIFIER, $1); } |
    NUMBER     { $$ = terminal(NUMBER, $1); };
-
-N:
-   { strcpy(ident2, yylval.str); };
 
 lbl:
    { $$ = gtlabel(); };

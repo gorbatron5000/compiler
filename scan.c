@@ -21,7 +21,6 @@ int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,
       ANDEQ, XOREQ, OREQ, LSHIFT, RSHIFT, INCR, DECR, GTEQ, LTEQ, EQ, NEQ,
       LAND, LOR, TRUE, FALSE, '+', '-', '*', '/', '=', '!'};
 
-char ident[MAXRTL], fname[MAXLBL], ident2[MAXRTL];
 int identtype, identwidth;
 
 int strtotok(char *str)
