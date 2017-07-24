@@ -32,6 +32,7 @@
 #define ACC       (1 << 21)
 #define EMPTY     (1 << 22)
 #define PARAM     (1 << 23)
+#define CALL      (1 << 24)
 
 #define optype(x) (strchr("+-*/", x) ? BINST : COPY)
 

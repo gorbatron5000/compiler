@@ -24,7 +24,7 @@
             postfix_expression prefix_expression statements assignment
             while_statement for_statement opt_expression function E
             arrayref
-%type <decl> declaration vars var opt_declaration
+%type <decl> declaration vars var param_list
 %type <type> arrays addresses
 %type <num> num type assign_oper
 %type <jump> jump
@@ -44,9 +44,18 @@ statement:
    declaration ';' {} |
    assignment ';' {} |
    function {} |
+   call {} |
    if_statement lbl    { backpatch($1->falselist, $2); } |
    while_statement lbl { backpatch($1->falselist, $2); } |
    for_statement lbl   { backpatch($1->falselist, $2); };
+
+call_list:
+   {} |
+   var { param($1); } |
+   call_list ',' var { param($3); };
+
+call:
+   IDENTIFIER '(' call_list ')' ';' { call($1); };
 
 declaration:
    type vars { $$ = $2; };
@@ -63,13 +72,13 @@ var:
    addresses IDENTIFIER arrays { $$ = symbol($2, join($3, $1)); };
 
 addresses:
-   { $$ = makebasetype(identtype); } |
-   '*' addresses { $$ = type($2, 1); } |
-   '&' addresses { $$ = type($2, 1); };
+   { $$ = type(NULL, 1, identtype); } |
+   '*' addresses { $$ = type($2, 1, POINTER); } |
+   '&' addresses { $$ = type($2, 1, ADDRESS); };
 
 arrays:
    {} |
-   '[' num ']' arrays { $$ = type($4, $2); };
+   '[' num ']' arrays { $$ = type($4, $2, ARRAY); };
 
 num:
    NUMBER { $$ = atoi(yylval.str); };
@@ -93,8 +102,8 @@ assign_oper:
    OREQ     { $$ = OREQ; };
 
 function:
-   declaration E '(' opt_declaration ')' ';' {} |
-   declaration E '(' opt_declaration ')' '{' statements '}'
+   declaration E '(' param_list ')' ';' { add_parameters($1); } |
+   declaration E '(' param_list ')' '{' statements '}'
             { func($1, $4, $2); };
 
 E:
@@ -108,9 +117,10 @@ P:
 Q:
    { decrease_scope(); };
 
-opt_declaration:
+param_list:
    { parameter = 0; } |
-   declaration { $$ = $1; };
+   type var ',' param_list {} |
+   type var {};
 
 if_statement:
    IF '(' expression ')' lbl statement

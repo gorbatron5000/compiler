@@ -15,7 +15,7 @@
 struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
 struct symbollist *params;
-int parameter;
+int parameter, numparams;
 
 int widthof(int token)
 {
@@ -76,26 +76,36 @@ void decrease_scope()
    symtbltop = symtbltop->prev;
 }
 
+void add_parameters(struct symbol *func)
+{
+   func->params = params;
+   params = NULL;
+}
+
+void insert_param(struct symbol *s)
+{
+   struct symbollist *ptr;
+   if (!params) {
+      params = malloc(sizeof(struct symbollist));
+      params->ptr = s;
+   }
+   else {
+      for (ptr = params; ptr && ptr->next; ptr = ptr->next);
+      ptr = ptr->next = malloc(sizeof(struct symbollist));
+      ptr->ptr = s;
+      ptr->next = NULL;
+   }
+}
+
 struct symbol *add_symbol(struct symbol *s)
 {
-   struct symbollist *ptr, *sl = malloc(sizeof(struct symbollist));
+   struct symbollist *sl = malloc(sizeof(struct symbollist));
 
    if (!symtbltop)
       increase_scope();
 
-   if (parameter) {
-      if (!params) {
-         params = malloc(sizeof(struct symbollist));
-         params->ptr = s;
-      }
-      else {
-         for (ptr = params; ptr && ptr->next; ptr = ptr->next);
-         ptr = ptr->next = malloc(sizeof(struct symbollist));
-         ptr->ptr = s;
-         ptr->next = NULL;
-      }
-   }
-
+   if (parameter)
+      insert_param(s);
    
    sl->ptr = s;
    sl->next = symtbltop->slist;
@@ -136,7 +146,7 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
 
    if (newrtl->type == BINST)
       newrtl->dst = temp(INT);
-   else if (newrtl->type == SYMBOL)
+   else if (newrtl->type == SYMBOL || newrtl->type == PARAM)
       newrtl->dst = s->entry;
    else if (newrtl->type == ACC) {
       newrtl->type = BINST;
@@ -171,6 +181,44 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
 struct list *new_rtl(union semrec *s, int type)
 {
    return (rtlend = insert_rtl(rtlend, s, type));
+}
+
+void check_params(struct symbol *func)
+{
+   struct symbollist *fptr = func->params, *pptr = params;
+   struct type *ftptr, *ptptr;
+   int i = 0;
+   printf("numparams is %d\n", numparams);
+   for (; fptr && pptr; fptr = fptr->next, pptr = pptr->next) {
+      printf("i is %d\n", ++i);
+      for (ftptr = fptr->ptr->type, ptptr = pptr->ptr->type; 
+           ftptr && ptptr; ftptr = ftptr->type, ptptr = ptptr->type)
+         if (ftptr->base != ptptr->base)
+            break;
+   }
+   if (ftptr || ptptr) {
+      printf("function parameters don't match\n");
+      exit(1);
+   }
+}
+
+void call(char *f)
+{
+   union semrec *s = makesemrec();
+   sprintf(s->label, "call %s %d", f, numparams);
+   check_params(lookup(f));
+   numparams = 0;
+   params = NULL;
+   new_rtl(s, CALL);
+}
+
+void param(struct symbol *p)
+{
+   union semrec *s = makesemrec();
+   numparams++;
+   insert_param(p);
+   s->entry = p;
+   new_rtl(s, PARAM);
 }
 
 struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,
@@ -229,6 +277,7 @@ struct list *func(struct symbol *fdecl, struct symbol *fparams,
    struct list *funcinit)
 {
    union semrec *s = makesemrec();
+   add_parameters(fdecl);
    sprintf(funcinit->sptr->label, "%s():", fdecl->id);
    funcinit->type = FUNC;
    fdecl->type = makebasetype(FUNC);
@@ -299,11 +348,12 @@ struct symbol *symbol(char *ident, struct type *t)
    return add_symbol(s);
 }
 
-struct type *type(struct type *t, int sz)
+struct type *type(struct type *t, int sz, int base)
 {
    struct type *tt = malloc(sizeof(struct type));
    tt->type = t;
    tt->width = t ? sz * t->width : sz * identwidth;
+   tt->base = base;
    return tt;
 }
 
@@ -356,9 +406,9 @@ void print_rtls()
          printf("%s\n", ptr->sptr->label);
       else if (ptr->type == BINST)
          printf("%s = %s %c %s;\n", ptr->dst->id,
-                                   ptr->sptr->lhs->dst->id,
-                                   ptr->sptr->op,
-                                   ptr->sptr->rhs->dst->id);
+                                    ptr->sptr->lhs->dst->id,
+                                    ptr->sptr->op,
+                                    ptr->sptr->rhs->dst->id);
       else if (ptr->type == JUMP) {
          if (ptr->sptr->test)
             printf("if %s goto %s\n", ptr->sptr->test->dst->id,
@@ -369,8 +419,10 @@ void print_rtls()
       else if (ptr->type == COPY)
          printf("%s = %s;\n", ptr->sptr->lhs->dst->id,
                              ptr->sptr->rhs->dst->id);
-      else if (ptr->type == FUNC || ptr->type == ASM)
+      else if (ptr->type == FUNC || ptr->type == ASM || ptr->type == CALL)
          printf("%s\n", ptr->sptr->label);
+      else if (ptr->type == PARAM)
+         printf("param(%s)\n", ptr->dst->id);
    }
 }
 
