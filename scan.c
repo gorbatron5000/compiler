@@ -13,10 +13,10 @@ char *token_strings[] = { "auto", "break", "case", "char", "const",
       "true", "false", "+", "-", "*", "/", "=", "!" };
 
 int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,
-      CONTINUE, DEFAULT, DO, INT_, LONG, REGISTER, RETURN,
+      CONTINUE, DEFAULT, DO, INT, LONG, REGISTER, RETURN,
       SHORT, SIGNED, SIZEOF, STATIC, STRUCT, SWITCH, TYPEDEF,
       UNION, UNSIGNED, VOID, VOLATILE, WHILE, DOUBLE, ELSE,
-      ENUM, EXTERN, FLOAT_, FOR, GOTO, IF, 
+      ENUM, EXTERN, FLOAT, FOR, GOTO, IF, 
       MULEQ, DIVEQ, MODEQ, ADDEQ, SUBEQ, LSHIFTEQ, RSHIFTEQ,
       ANDEQ, XOREQ, OREQ, LSHIFT, RSHIFT, INCR, DECR, GTEQ, LTEQ, EQ, NEQ,
       LAND, LOR, TRUE, FALSE, '+', '-', '*', '/', '=', '!'};

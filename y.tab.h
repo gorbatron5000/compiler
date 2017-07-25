@@ -48,8 +48,14 @@
 #define NUMBER 304
 #define IDENTIFIER 305
 #define NOT 306
-#define INT_ 307
-#define FLOAT_ 308
+#define INT 307
+#define FLOAT 308
+#define CHAR 309
+#define SHORT 310
+#define LONG 311
+#define DOUBLE 312
+#define UNSIGNED 313
+#define ENUMERATOR 314
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

@@ -15,6 +15,7 @@
 struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
 struct symbollist *params;
+struct symbol *currfunc, *f1;
 int parameter, numparams;
 
 int widthof(int token)
@@ -56,7 +57,7 @@ char *gtrg()
 
 void increase_scope()
 {
-   struct symboltable *s, *t;
+   struct symboltable *t;
 
    if (!symtbltop) {
       symtbltop = malloc(sizeof(struct symboltable));
@@ -82,12 +83,20 @@ void add_parameters(struct symbol *func)
    params = NULL;
 }
 
+void show_symbols(struct symbollist *f)
+{
+   struct symbollist *ptr;
+   for (ptr = f; ptr; ptr = ptr->next)
+      printf("P: %s\n", ptr->ptr->id);
+}
+
 void insert_param(struct symbol *s)
 {
    struct symbollist *ptr;
    if (!params) {
-      params = malloc(sizeof(struct symbollist));
-      params->ptr = s;
+      ptr = params = malloc(sizeof(struct symbollist));
+      ptr->ptr = params->ptr = s;
+      params->next = NULL;
    }
    else {
       for (ptr = params; ptr && ptr->next; ptr = ptr->next);
@@ -146,13 +155,14 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
 
    if (newrtl->type == BINST)
       newrtl->dst = temp(INT);
-   else if (newrtl->type == SYMBOL || newrtl->type == PARAM)
+   else if (newrtl->type == SYMBOL || newrtl->type == PARAM ||
+            newrtl->type == RETURN)
       newrtl->dst = s->entry;
    else if (newrtl->type == ACC) {
       newrtl->type = BINST;
       newrtl->dst = s->lhs->dst;
    }
-   else if (newrtl->type == TEMPORARY)
+   else if (newrtl->type == TEMPORARY || newrtl->type == CVT)
       newrtl->dst = temp(INT);
    else if (newrtl->type == COPY) {
       if (!s->lhs) {
@@ -183,30 +193,50 @@ struct list *new_rtl(union semrec *s, int type)
    return (rtlend = insert_rtl(rtlend, s, type));
 }
 
-void check_params(struct symbol *func)
+struct list *cvt(struct symbol *dst, struct type *type)
+{
+   union semrec *s = makesemrec();
+   s->src = dst;
+   s->oper = type->base;
+   return new_rtl(s, CVT);
+}
+
+struct list *makeparam(struct symbol *param)
+{
+   union semrec *s = makesemrec();
+   s->entry = param;
+   return new_rtl(s, PARAM);
+}
+
+void emit_params(struct symbol *func)
 {
    struct symbollist *fptr = func->params, *pptr = params;
    struct type *ftptr, *ptptr;
-   int i = 0;
-   printf("numparams is %d\n", numparams);
+   struct list *cvtret;
+
    for (; fptr && pptr; fptr = fptr->next, pptr = pptr->next) {
-      printf("i is %d\n", ++i);
       for (ftptr = fptr->ptr->type, ptptr = pptr->ptr->type; 
-           ftptr && ptptr; ftptr = ftptr->type, ptptr = ptptr->type)
-         if (ftptr->base != ptptr->base)
-            break;
+           ftptr && ptptr; ftptr = ftptr->type, ptptr = ptptr->type) {
+         if (ftptr->base != ptptr->base) {
+            cvtret = cvt(fptr->ptr, ptptr);
+            makeparam(cvtret->dst);
+         }
+         else
+            makeparam(pptr->ptr);
+      }
    }
    if (ftptr || ptptr) {
       printf("function parameters don't match\n");
       exit(1);
    }
+
 }
 
 void call(char *f)
 {
    union semrec *s = makesemrec();
    sprintf(s->label, "call %s %d", f, numparams);
-   check_params(lookup(f));
+   emit_params(lookup(f));
    numparams = 0;
    params = NULL;
    new_rtl(s, CALL);
@@ -214,11 +244,8 @@ void call(char *f)
 
 void param(struct symbol *p)
 {
-   union semrec *s = makesemrec();
    numparams++;
    insert_param(p);
-   s->entry = p;
-   new_rtl(s, PARAM);
 }
 
 struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,
@@ -328,12 +355,19 @@ struct list *makeimmediate(int d)
    return new_rtl(s, SYMBOL);
 }
 
+void ret(struct list *ret)
+{
+   union semrec *s = makesemrec();
+   s->entry = ret ? ret->dst : NULL;
+   new_rtl(s, RETURN);
+}
+
 struct list *postfix(struct list *rtl, int oper)
 {
    union semrec *s1 = makesemrec(), *s2 = makesemrec(), *s3 = makesemrec();
-   s1->rhs = s2->lhs = s3->lhs = rtl;
+   s1->rhs = s2->lhs = rtl;
    s2->rhs = makeimmediate(1);
-   s3->rhs = new_rtl(s1, COPY);
+   s3->lhs = s3->rhs = new_rtl(s1, COPY);
    s2->op = toktostr(oper)[0];
    new_rtl(s2, ACC);
    return new_rtl(s3, COPY);
@@ -423,6 +457,12 @@ void print_rtls()
          printf("%s\n", ptr->sptr->label);
       else if (ptr->type == PARAM)
          printf("param(%s)\n", ptr->dst->id);
+      else if (ptr->type == CVT)
+         printf("%s = CVT(%s, %s);\n", ptr->dst->id,
+                                       ptr->sptr->src->id,
+                                       toktostr(ptr->sptr->oper));
+      else if (ptr->type == RETURN)
+         printf("return(%s)\n", ptr->dst ? ptr->dst->id : "");
    }
 }
 

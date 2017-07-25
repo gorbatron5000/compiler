@@ -9,15 +9,8 @@
 #define MAXRTL 30
 #define MAXLBL 16
 
-#define CHAR      (1 << 1)
-#define SHORT     (1 << 2)
-#define INT       (1 << 3)
-#define FLOAT     (1 << 4)  
-#define DOUBLE    (1 << 5)
-#define LONG      (1 << 6)
 #define POINTER   (1 << 7)
 #define ARRAY     (1 << 8)
-#define UNSIGNED  (1 << 9)
 #define FUNC      (1 << 10)
 #define SYMBOL    (1 << 11)
 #define JUMP      (1 << 12)
@@ -33,6 +26,7 @@
 #define EMPTY     (1 << 22)
 #define PARAM     (1 << 23)
 #define CALL      (1 << 24)
+#define CVT       (1 << 25)
 
 #define optype(x) (strchr("+-*/", x) ? BINST : COPY)
 
@@ -47,6 +41,10 @@ union semrec {
    struct {
       int op;
       struct list *lhs, *rhs;
+   };
+   struct {
+      struct symbol *src, *dst;
+      int oper;
    };
    struct symbol *entry;
    char label[MAXLBL];
@@ -89,6 +87,7 @@ struct symboltable {
 
 extern int identtype, identwidth, parameterlist;
 extern struct symbollist *params;
+extern struct symbol *currfunc, *f1;
 
 int strtotok(char*);
 char *toktostr(int);

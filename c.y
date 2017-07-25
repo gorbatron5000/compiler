@@ -17,7 +17,8 @@
        VOID VOLATILE WHILE ELSE ENUM EXTERN FOR
        GOTO IF MULEQ DIVEQ MODEQ ADDEQ SUBEQ LSHIFTEQ RSHIFTEQ
        ANDEQ XOREQ OREQ LSHIFT RSHIFT INCR DECR GTEQ LTEQ EQ NEQ
-       LAND LOR TRUE FALSE NUMBER IDENTIFIER NOT INT_ FLOAT_
+       LAND LOR TRUE FALSE NUMBER IDENTIFIER NOT INT FLOAT
+       CHAR SHORT LONG DOUBLE UNSIGNED TYPEDEF ENUMERATOR
 
 %type <rtl> statement lbl logical_or logical_and terminal expression
             multiplicative_expression additive_expression if_statement
@@ -25,15 +26,20 @@
             while_statement for_statement opt_expression function E
             arrayref
 %type <decl> declaration vars var param_list
-%type <type> arrays addresses
-%type <num> num type assign_oper
+%type <type> arrays addresses storage_specifier enumerator typedefname
+%type <num> num type_specifier assign_oper
 %type <jump> jump
 %type <str> IDENTIFIER NUMBER
 
 %%
 
 start:
-   statements { print_rtls(); };
+   { print_rtls(); } |
+   global_declaration start {};
+
+global_declaration:
+   function {} |
+   declaration ';' {};
 
 statements:
    {} |
@@ -41,13 +47,16 @@ statements:
    statement statements {};
 
 statement:
+   return ';' {} |
    declaration ';' {} |
    assignment ';' {} |
-   function {} |
-   call {} |
+   call ';' {} |
    if_statement lbl    { backpatch($1->falselist, $2); } |
    while_statement lbl { backpatch($1->falselist, $2); } |
    for_statement lbl   { backpatch($1->falselist, $2); };
+
+return:
+   RETURN opt_expression { ret($2); } |
 
 call_list:
    {} |
@@ -55,14 +64,46 @@ call_list:
    call_list ',' var { param($3); };
 
 call:
-   IDENTIFIER '(' call_list ')' ';' { call($1); };
+   IDENTIFIER '(' call_list ')' { call($1); };
 
 declaration:
-   type vars { $$ = $2; };
+   type_specifier vars { $$ = $2; };
 
-type:
-   INT_   { identtype = INT;   identwidth = 4; } |
-   FLOAT_ { identtype = FLOAT; identwidth = 8; };
+storage_specifier:
+   AUTO {} |
+   REGISTER {} |
+   STATIC {} |
+   EXTERN {} |
+   TYPEDEF {};
+
+type_specifier:
+   VOID {} |
+   CHAR {} |
+   SHORT{} |
+   INT   { identtype = INT;   identwidth = 4; } |
+   LONG {} |
+   FLOAT { identtype = FLOAT; identwidth = 8; } |
+   DOUBLE {} |
+   SIGNED {} |
+   UNSIGNED {} |
+   compoundtype {} |
+   enumerator {} |
+   typedefname {};
+
+compoundtype:
+   struct_or_union IDENTIFIER '{' '}' {} |
+   struct_or_union '{' '}' {} |
+   struct_or_union IDENTIFIER {};
+
+struct_or_union:
+   STRUCT {} |
+   UNION {};
+
+enumerator:
+   ENUMERATOR {};
+
+typedefname:
+   TYPEDEF {};
 
 vars:
    var { $$ = $1; } |
@@ -84,7 +125,7 @@ num:
    NUMBER { $$ = atoi(yylval.str); };
 
 assignment:
-   expression {} |
+   expression { $$ = $1; } |
    postfix_expression assign_oper assignment { binst($1, $3, $2); };
 
 assign_oper:
@@ -102,25 +143,20 @@ assign_oper:
    OREQ     { $$ = OREQ; };
 
 function:
-   declaration E '(' param_list ')' ';' { add_parameters($1); } |
-   declaration E '(' param_list ')' '{' statements '}'
-            { func($1, $4, $2); };
+   declaration E '(' P param_list ')' F ';' { add_parameters($1); } |
+   declaration E '(' P param_list ')' F G '{' statements '}'
+            { func($1, $5, $2); };
 
-E:
-   { params = malloc(sizeof(struct symbollist));
-     parameter = 1;
-     $$ = empty(); };
-
-P:
-   { increase_scope(); };
-
-Q:
-   { decrease_scope(); };
+E: { f1 = $<decl>0; parameter = 1; $$ = empty(); };
+F: { parameter = 0; };
+G: { currfunc = f1; };
+P: { increase_scope(); };
+Q: { decrease_scope(); };
 
 param_list:
    { parameter = 0; } |
-   type var ',' param_list {} |
-   type var {};
+   type_specifier var ',' param_list {} |
+   type_specifier var {};
 
 if_statement:
    IF '(' expression ')' lbl statement
