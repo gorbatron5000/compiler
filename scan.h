@@ -85,9 +85,9 @@ struct symboltable {
    struct symboltable *prev;
 };
 
-extern int identtype, identwidth, parameterlist;
+extern int identtype, parameter;
 extern struct symbollist *params;
-extern struct symbol *currfunc, *f1;
+extern struct symbol *currfunc, *calledfunc;
 
 int strtotok(char*);
 char *toktostr(int);

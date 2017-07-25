@@ -811,7 +811,7 @@ case 29:
 break;
 case 30:
 #line 83 "c.y"
-	{ identtype = INT;   identwidth = 4; }
+	{ identtype = INT; }
 break;
 case 31:
 #line 84 "c.y"
@@ -819,7 +819,7 @@ case 31:
 break;
 case 32:
 #line 85 "c.y"
-	{ identtype = FLOAT; identwidth = 8; }
+	{ identtype = FLOAT;}
 break;
 case 33:
 #line 86 "c.y"
@@ -967,7 +967,7 @@ case 68:
 break;
 case 69:
 #line 146 "c.y"
-	{ add_parameters(yystack.l_mark[-7].decl); }
+	{}
 break;
 case 70:
 #line 148 "c.y"
@@ -975,7 +975,7 @@ case 70:
 break;
 case 71:
 #line 150 "c.y"
-	{ f1 = yystack.l_mark[0].decl; parameter = 1; yyval.rtl = empty(); }
+	{ calledfunc = yystack.l_mark[0].decl; parameter = 1; yyval.rtl = empty(); }
 break;
 case 72:
 #line 151 "c.y"
@@ -983,7 +983,7 @@ case 72:
 break;
 case 73:
 #line 152 "c.y"
-	{ currfunc = f1; }
+	{ currfunc = calledfunc; }
 break;
 case 74:
 #line 153 "c.y"

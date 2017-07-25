@@ -14,9 +14,8 @@
 
 struct symboltable *symtbltop;
 struct list *rtls, *rtlend;
-struct symbollist *params;
-struct symbol *currfunc, *f1;
-int parameter, numparams;
+struct symbol *currfunc, *calledfunc;
+int parameter;
 
 int widthof(int token)
 {
@@ -31,28 +30,21 @@ int widthof(int token)
    return 0;
 }
 
+struct type *type(struct type *t, int sz, int base)
+{
+   struct type *tt = malloc(sizeof(struct type));
+   tt->type = t;
+   tt->width = t ? sz * t->width : sz * widthof(base);
+   tt->base = base;
+   return tt;
+}
+
 struct type *join(struct type *t1, struct type *t2)
 {
    struct type *tptr;
    for (tptr = t1; tptr && tptr->type; tptr = tptr->type);
    tptr ? (tptr->type = t2) : (t1 = t2);
    return t1;
-}
-
-struct type *makebasetype(int type)
-{
-   struct type *t = maketype();
-   t->base = type;
-   t->width = widthof(type);
-   return t;
-}
-
-char *gtrg()
-{
-   static int rnum;
-   static char reg[REGSTRING];
-   sprintf(reg, "t%d", rnum++);
-   return reg;
 }
 
 void increase_scope()
@@ -77,12 +69,6 @@ void decrease_scope()
    symtbltop = symtbltop->prev;
 }
 
-void add_parameters(struct symbol *func)
-{
-   func->params = params;
-   params = NULL;
-}
-
 void show_symbols(struct symbollist *f)
 {
    struct symbollist *ptr;
@@ -93,13 +79,13 @@ void show_symbols(struct symbollist *f)
 void insert_param(struct symbol *s)
 {
    struct symbollist *ptr;
-   if (!params) {
-      ptr = params = malloc(sizeof(struct symbollist));
-      ptr->ptr = params->ptr = s;
-      params->next = NULL;
+   if (!calledfunc->params) {
+      ptr = calledfunc->params = malloc(sizeof(struct symbollist));
+      ptr->ptr = calledfunc->params->ptr = s;
+      calledfunc->params->next = NULL;
    }
    else {
-      for (ptr = params; ptr && ptr->next; ptr = ptr->next);
+      for (ptr = calledfunc->params; ptr && ptr->next; ptr = ptr->next);
       ptr = ptr->next = malloc(sizeof(struct symbollist));
       ptr->ptr = s;
       ptr->next = NULL;
@@ -123,12 +109,13 @@ struct symbol *add_symbol(struct symbol *s)
    return sl->ptr;
 }
 
-struct symbol *temp(int type)
+struct symbol *temp(int t)
 {
+   static int rnum;
    struct symbol *s = malloc(sizeof(struct symbol));
-   s->type = makebasetype(INT);
+   s->type = type(NULL, 1, t);
    s->id = malloc(REGSTRING);
-   strcpy(s->id, gtrg());
+   sprintf(s->id, "t%d", rnum++);
    return add_symbol(s);
 }
 
@@ -193,6 +180,11 @@ struct list *new_rtl(union semrec *s, int type)
    return (rtlend = insert_rtl(rtlend, s, type));
 }
 
+int comparetypes(struct type *t1, struct type *t2)
+{
+   
+}
+
 struct list *cvt(struct symbol *dst, struct type *type)
 {
    union semrec *s = makesemrec();
@@ -210,7 +202,7 @@ struct list *makeparam(struct symbol *param)
 
 void emit_params(struct symbol *func)
 {
-   struct symbollist *fptr = func->params, *pptr = params;
+   struct symbollist *fptr = func->params, *pptr = calledfunc->params;
    struct type *ftptr, *ptptr;
    struct list *cvtret;
 
@@ -232,19 +224,24 @@ void emit_params(struct symbol *func)
 
 }
 
+int numparams(struct symbol *func)
+{
+   struct symbollist *ptr;
+   int i;
+   for (i = 0, ptr = func->params; ptr; ptr = ptr->next, i++);
+   return i;   
+}
+
 void call(char *f)
 {
    union semrec *s = makesemrec();
-   sprintf(s->label, "call %s %d", f, numparams);
+   sprintf(s->label, "call %s %d", f, numparams(lookup(f)));
    emit_params(lookup(f));
-   numparams = 0;
-   params = NULL;
    new_rtl(s, CALL);
 }
 
 void param(struct symbol *p)
 {
-   numparams++;
    insert_param(p);
 }
 
@@ -304,10 +301,9 @@ struct list *func(struct symbol *fdecl, struct symbol *fparams,
    struct list *funcinit)
 {
    union semrec *s = makesemrec();
-   add_parameters(fdecl);
    sprintf(funcinit->sptr->label, "%s():", fdecl->id);
    funcinit->type = FUNC;
-   fdecl->type = makebasetype(FUNC);
+   fdecl->type = type(NULL, 0, FUNC);
    decrease_scope();
    sprintf(s->label, ".exit %s", fdecl->id);
    return new_rtl(s, FUNC);
@@ -348,7 +344,7 @@ struct list *makeimmediate(int d)
    union semrec *s = makesemrec();
    char tmp[MAXRTL];
    s->entry = malloc(sizeof(struct symbol));
-   s->entry->type = makebasetype(INT);
+   s->entry->type = type(NULL, 1, INT);
    sprintf(tmp, "%d", d);
    s->entry->id = malloc(strlen(tmp)+1);
    strcpy(s->entry->id, tmp);
@@ -380,15 +376,6 @@ struct symbol *symbol(char *ident, struct type *t)
    s->id = malloc(strlen(ident)+1);
    strcpy(s->id, ident);
    return add_symbol(s);
-}
-
-struct type *type(struct type *t, int sz, int base)
-{
-   struct type *tt = malloc(sizeof(struct type));
-   tt->type = t;
-   tt->width = t ? sz * t->width : sz * identwidth;
-   tt->base = base;
-   return tt;
 }
 
 struct list *identifier(char *ident)

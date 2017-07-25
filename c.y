@@ -80,9 +80,9 @@ type_specifier:
    VOID {} |
    CHAR {} |
    SHORT{} |
-   INT   { identtype = INT;   identwidth = 4; } |
+   INT   { identtype = INT; } |
    LONG {} |
-   FLOAT { identtype = FLOAT; identwidth = 8; } |
+   FLOAT { identtype = FLOAT;} |
    DOUBLE {} |
    SIGNED {} |
    UNSIGNED {} |
@@ -143,13 +143,13 @@ assign_oper:
    OREQ     { $$ = OREQ; };
 
 function:
-   declaration E '(' P param_list ')' F ';' { add_parameters($1); } |
+   declaration E '(' P param_list ')' F ';' {} |
    declaration E '(' P param_list ')' F G '{' statements '}'
             { func($1, $5, $2); };
 
-E: { f1 = $<decl>0; parameter = 1; $$ = empty(); };
+E: { calledfunc = $<decl>0; parameter = 1; $$ = empty(); };
 F: { parameter = 0; };
-G: { currfunc = f1; };
+G: { currfunc = calledfunc; };
 P: { increase_scope(); };
 Q: { decrease_scope(); };
 
