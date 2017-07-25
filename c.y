@@ -1,6 +1,7 @@
 %{
 #include "scan.h"
-#include "sem_rec.h"
+#include "symboltable.h"
+#include "rtls.h"
 %}
 
 %union {
@@ -122,7 +123,7 @@ typedefname:
 vars:
    {} |
    var { add_symbol($1); $$ = $1; } |
-   var ',' vars { $$ = $1; };
+   var ',' vars { add_symbol($1); $$ = $1; };
 
 var:
    addresses IDENTIFIER arrays { $$ = symbol($2, join($3, $1)); };

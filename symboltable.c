@@ -1,21 +1,15 @@
 #include "y.tab.h"
 #include "scan.h"
-#include "compoundtypes.h"
+#include "symboltable.h"
+#include "rtls.h"
 
 #define REGSTRING 10
 #define NUMRELOPS 2
-
-#define makejumplist() (malloc(sizeof(struct jumplist)))
-#define makelist() (malloc(sizeof(struct list)))
-#define makesemrec() (malloc(sizeof(union semrec)))
-#define maketype() (malloc(sizeof(struct type)))
-
 #define DECLTYPES 9
 
 struct symboltable *symtbltop;
-struct list *rtls, *rtlend;
-struct symbol *currfunc, *calledfunc, *currstruct;
-int parameter;
+struct symbol *currfunc, *calledfunc, *currstruct, **udttable;
+int udtmax, udts, parameter;
 
 int widthof(int token)
 {
@@ -30,6 +24,21 @@ int widthof(int token)
    return 0;
 }
 
+struct symbol *add_udt(struct symbol *ent)
+{
+   struct symbol **tmp;
+   
+   if (!udttable)
+      udttable = malloc(sizeof(struct symbol*) * (udtmax = 100));
+
+   if (udts + 1 >= udtmax) {
+      tmp = udttable;
+      udttable = malloc(sizeof(struct symbol*) * (udtmax *= 2));
+      memcpy(udttable, tmp, sizeof(struct symbol*) * udts);
+   }
+   
+   return (udttable[udts++] = ent);
+}
 struct type *type(struct type *t, int sz, int base)
 {
    struct type *tt = malloc(sizeof(struct type));
@@ -136,87 +145,6 @@ struct symbol *lookup(char *id)
 int comparetypes(struct type *t1, struct type *t2)
 {
    
-}
-
-void emit_params(struct symbol *func)
-{
-   struct symbollist *fptr = func->params, *pptr = calledfunc->params;
-   struct type *ftptr, *ptptr;
-   struct list *cvtret;
-
-   for (; fptr && pptr; fptr = fptr->next, pptr = pptr->next) {
-      for (ftptr = fptr->ptr->type, ptptr = pptr->ptr->type; 
-           ftptr && ptptr; ftptr = ftptr->type, ptptr = ptptr->type) {
-         if (ftptr->base != ptptr->base) {
-            cvtret = cvt(fptr->ptr, ptptr);
-            makeparam(cvtret->dst);
-         }
-         else
-            makeparam(pptr->ptr);
-      }
-   }
-   if (ftptr || ptptr) {
-      printf("function parameters don't match\n");
-      exit(1);
-   }
-
-}
-
-int numparams(struct symbol *func)
-{
-   struct symbollist *ptr;
-   int i;
-   for (i = 0, ptr = func->params; ptr; ptr = ptr->next, i++);
-   return i;   
-}
-
-void param(struct symbol *p)
-{
-   insert_param(p);
-}
-
-struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,
-   int test)
-{
-   union semrec *j = makesemrec();
-   *jlist = makejumplist();
-   j->target = NULL;
-   j->test = test == TRUE ? rtl : NULL;
-   (*jlist)->next = NULL;
-   (*jlist)->ptr = insert_rtl(rtl, j, JUMP);
-   return *jlist;
-}
-
-void make_jumps(struct list *rtl)
-{
-   if (!rtl->truelist)
-      make_jump(rtl, &rtl->truelist, TRUE);
-   if (!rtl->falselist)
-      make_jump(rtl->truelist->ptr, &rtl->falselist, FALSE);
-}
-
-void backpatch(struct jumplist *jmps, struct list *lbl)
-{
-   struct jumplist *ptr;
-   char *c;
-   for (ptr = jmps; ptr; ptr = ptr->next)
-      ptr->ptr->sptr->target = lbl;
-}
-
-struct jumplist *merge(struct jumplist *l1, struct jumplist *l2)
-{
-   struct jumplist *ptr;
-   if (!l1)
-      return l2;
-   for (ptr = l1; ptr->next; ptr = ptr->next);
-   ptr->next = l2;
-   return l1;
-}
-
-struct jumplist *jump()
-{
-   struct jumplist *j = makejumplist();
-   return make_jump(rtlend, &j, FALSE);
 }
 
 void add_member(struct symbol *member)

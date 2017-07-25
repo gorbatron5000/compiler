@@ -1,5 +1,5 @@
-CFILES=scan.c compoundtypes.c y.tab.c
-HEADERS=sem_rec.h compoundtypes.h
+CFILES=symboltable.c rtls.c y.tab.c scan.c
+HEADERS=symboltable.h rtls.h y.tab.h scan.h
 
 parser: c.y $(CFILES) $(HEADERS)
 	yacc -dv c.y

@@ -1,9 +1,12 @@
-#include "rtls.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "y.tab.h"
+#include "rtls.h"
+#include "symboltable.h"
+#include "scan.h"
 
 struct list *rtls, *rtlend;
+int identtype;
 
 struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
 {
@@ -240,6 +243,42 @@ struct jumplist *jump()
    return make_jump(rtlend, &j, FALSE);
 }
 
+void emit_params(struct symbol *func)
+{
+   struct symbollist *fptr = func->params, *pptr = calledfunc->params;
+   struct type *ftptr, *ptptr;
+   struct list *cvtret;
+
+   for (; fptr && pptr; fptr = fptr->next, pptr = pptr->next) {
+      for (ftptr = fptr->ptr->type, ptptr = pptr->ptr->type; 
+           ftptr && ptptr; ftptr = ftptr->type, ptptr = ptptr->type) {
+         if (ftptr->base != ptptr->base) {
+            cvtret = cvt(fptr->ptr, ptptr);
+            makeparam(cvtret->dst);
+         }
+         else
+            makeparam(pptr->ptr);
+      }
+   }
+   if (ftptr || ptptr) {
+      printf("function parameters don't match\n");
+      exit(1);
+   }
+
+}
+
+int numparams(struct symbol *func)
+{
+   struct symbollist *ptr;
+   int i;
+   for (i = 0, ptr = func->params; ptr; ptr = ptr->next, i++);
+   return i;   
+}
+
+void param(struct symbol *p)
+{
+   insert_param(p);
+}
 
 void print_rtls()
 {
@@ -274,4 +313,3 @@ void print_rtls()
          printf("return(%s)\n", ptr->dst ? ptr->dst->id : "");
    }
 }
-

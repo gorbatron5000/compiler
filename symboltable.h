@@ -1,5 +1,9 @@
 #ifndef SYMBOLTABLE_H
-#define SYMBOLTALBE_H
+#define SYMBOLTABLE_H
+
+#include "rtls.h"
+
+#define maketype() (malloc(sizeof(struct type)))
 
 struct type {
    struct type *type;
@@ -26,6 +30,10 @@ struct symboltable {
    struct symboltable *prev;
 };
 
+extern struct symbol **udttable;
+extern int udtmax, udts;
+
+struct symbol *add_udt(struct symbol*);
 int widthof(int token);
 struct type *type(struct type *t, int sz, int base);
 struct type *join(struct type *t1, struct type *t2);
@@ -37,9 +45,6 @@ struct symbol *add_symbol(struct symbol *s);
 struct symbol *temp(int t);
 struct symbol *lookup(char *id);
 int comparetypes(struct type *t1, struct type *t2);
-void emit_params(struct symbol *func);
-int numparams(struct symbol *func);
-void param(struct symbol *p);
 struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,
    int test);
 void make_jumps(struct list *rtl);
