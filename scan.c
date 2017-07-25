@@ -1,7 +1,7 @@
-#include "string.h"
 #include "ctype.h"
 #include "scan.h"
 #include "y.tab.h"
+#include "compoundtypes.h"
 
 char *token_strings[] = { "auto", "break", "case", "char", "const",
       "continue", "default", "do", "int", "long", "register", "return",

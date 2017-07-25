@@ -91,13 +91,27 @@ type_specifier:
    typedefname {};
 
 compoundtype:
-   struct_or_union IDENTIFIER '{' '}' {} |
-   struct_or_union '{' '}' {} |
-   struct_or_union IDENTIFIER {};
+   struct_or_union IDENTIFIER A '{' struct_declarations '}' {} |
+   struct_or_union '{' '}' {} |   struct_or_union IDENTIFIER A {};
+
+A:
+   { add_user_defined_type($<str>0); };
 
 struct_or_union:
    STRUCT {} |
    UNION {};
+
+struct_declarations:
+   {} |
+   struct_declaration ';' {} |
+   struct_declaration struct_declarations {};
+
+struct_declaration:
+   type_specifier struct_member {};
+
+struct_member:
+   var { add_member($1); } |
+   var ',' struct_member {};
 
 enumerator:
    ENUMERATOR {};
@@ -106,7 +120,8 @@ typedefname:
    TYPEDEF {};
 
 vars:
-   var { $$ = $1; } |
+   {} |
+   var { add_symbol($1); $$ = $1; } |
    var ',' vars { $$ = $1; };
 
 var:

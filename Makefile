@@ -1,6 +1,9 @@
-parser: c.y scan.c scan.h sem_rec.h
+CFILES=scan.c compoundtypes.c y.tab.c
+HEADERS=sem_rec.h compoundtypes.h
+
+parser: c.y $(CFILES) $(HEADERS)
 	yacc -dv c.y
-	gcc -g scan.c y.tab.c -o parser -lm 
+	gcc -g $(CFILES) -o parser -lm 
 
 clean:
 	rm -f *.o parser

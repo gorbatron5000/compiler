@@ -3,6 +3,7 @@
 
 #include "stdio.h"
 #include "stdlib.h"
+#include "string.h"
 
 #define TOKENS 60
 #define MAXSTR 1000
@@ -33,57 +34,6 @@
 struct list;
 struct jumplist;
 struct symbollist;
-
-union semrec {
-   struct {
-      struct list *target, *test;
-   };
-   struct {
-      int op;
-      struct list *lhs, *rhs;
-   };
-   struct {
-      struct symbol *src, *dst;
-      int oper;
-   };
-   struct symbol *entry;
-   char label[MAXLBL];
-};
-
-struct list {
-   int type;
-   union semrec *sptr;
-   struct list *next;
-   struct symbol *dst;
-   struct jumplist *truelist, *falselist;
-};
-
-struct jumplist {
-   struct list *ptr;
-   struct jumplist *next;
-};
-
-struct type {
-   struct type *type;
-   int width;
-   int base;
-};
-
-struct symbol {
-   struct type *type;
-   char *id;
-   struct symbollist *params;
-};
-
-struct symbollist {
-   struct symbol *ptr;
-   struct symbollist *next;
-};
-
-struct symboltable {
-   struct symbollist *slist;
-   struct symboltable *prev;
-};
 
 extern int identtype, parameter;
 extern struct symbollist *params;
