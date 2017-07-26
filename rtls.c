@@ -7,6 +7,7 @@
 
 struct list *rtls, *rtlend;
 int identtype;
+struct symbol *udtentry;
 
 struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
 {
@@ -278,6 +279,13 @@ int numparams(struct symbol *func)
 void param(struct symbol *p)
 {
    insert_param(p);
+}
+
+struct list *access_member(struct list *b, char *member)
+{
+   static struct list *base;
+   base = base ? base : b;
+   return NULL; 
 }
 
 void print_rtls()

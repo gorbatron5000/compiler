@@ -33,6 +33,7 @@ struct symboltable {
 extern struct symbol **udttable;
 extern int udtmax, udts;
 
+struct symbol *get_udt(char*);
 struct symbol *add_udt(struct symbol*);
 int widthof(int token);
 struct type *type(struct type *t, int sz, int base);

@@ -63,6 +63,8 @@ struct jumplist {
 struct type;
 
 extern struct list *rtls, *rtlend;
+extern struct symbol *udtentry;
+extern int identtype;
 
 struct list *insert_rtl(struct list *rtl, union semrec *s, int type);
 struct list *new_rtl(union semrec *s, int type);
@@ -93,5 +95,6 @@ void print_rtls();
 void emit_params(struct symbol *func);
 int numparams(struct symbol *func);
 void param(struct symbol *p);
+struct list *access_member(struct list*, char*);
 
 #endif

@@ -1,7 +1,6 @@
 #include "ctype.h"
 #include "scan.h"
 #include "y.tab.h"
-#include "compoundtypes.h"
 
 char *token_strings[] = { "auto", "break", "case", "char", "const",
       "continue", "default", "do", "int", "long", "register", "return",
@@ -10,7 +9,7 @@ char *token_strings[] = { "auto", "break", "case", "char", "const",
       "enum", "extern", "float", "for", "goto", "if", 
       "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&=", "^=", "|=",
       "<<", ">>", "++", "--", ">=", "<=", "==", "!=", "&&", "||",
-      "true", "false", "+", "-", "*", "/", "=", "!" };
+      "true", "false", "+", "-", "*", "/", "=", "!", "->" };
 
 int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,
       CONTINUE, DEFAULT, DO, INT, LONG, REGISTER, RETURN,
@@ -19,7 +18,7 @@ int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,
       ENUM, EXTERN, FLOAT, FOR, GOTO, IF, 
       MULEQ, DIVEQ, MODEQ, ADDEQ, SUBEQ, LSHIFTEQ, RSHIFTEQ,
       ANDEQ, XOREQ, OREQ, LSHIFT, RSHIFT, INCR, DECR, GTEQ, LTEQ, EQ, NEQ,
-      LAND, LOR, TRUE, FALSE, '+', '-', '*', '/', '=', '!'};
+      LAND, LOR, TRUE, FALSE, '+', '-', '*', '/', '=', '!', DEREF};
 
 int identtype, identwidth;
 

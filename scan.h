@@ -5,7 +5,7 @@
 #include "stdlib.h"
 #include "string.h"
 
-#define TOKENS 60
+#define TOKENS 61
 #define MAXSTR 1000
 
 #define POINTER   (1 << 7)

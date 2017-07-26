@@ -24,6 +24,17 @@ int widthof(int token)
    return 0;
 }
 
+struct symbol *get_udt(char *udt)
+{
+   int i;
+   for (i = 0; i < udts; i++)
+      if (!strcmp(udt, udttable[i]->id))
+         return udttable[i];
+
+   fprintf(stderr, "error in get_udt: %s\n", udt);
+   exit(1);
+}
+
 struct symbol *add_udt(struct symbol *ent)
 {
    struct symbol **tmp;
@@ -36,9 +47,10 @@ struct symbol *add_udt(struct symbol *ent)
       udttable = malloc(sizeof(struct symbol*) * (udtmax *= 2));
       memcpy(udttable, tmp, sizeof(struct symbol*) * udts);
    }
-   
+
    return (udttable[udts++] = ent);
 }
+
 struct type *type(struct type *t, int sz, int base)
 {
    struct type *tt = malloc(sizeof(struct type));
@@ -110,7 +122,7 @@ struct symbol *add_symbol(struct symbol *s)
 
    if (parameter)
       insert_param(s);
-   
+printf("adding %s %d\n", s->id, s->type->base); 
    sl->ptr = s;
    sl->next = symtbltop->slist;
    symtbltop->slist = sl;

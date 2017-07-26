@@ -15,7 +15,7 @@
 
 %token AUTO BREAK CASE CONST CONTINUE DEFAULT DO REGISTER
        RETURN SIGNED SIZEOF STATIC STRUCT SWITCH TYPEDEF UNION
-       VOID VOLATILE WHILE ELSE ENUM EXTERN FOR
+       VOID VOLATILE WHILE ELSE ENUM EXTERN FOR DEREF
        GOTO IF MULEQ DIVEQ MODEQ ADDEQ SUBEQ LSHIFTEQ RSHIFTEQ
        ANDEQ XOREQ OREQ LSHIFT RSHIFT INCR DECR GTEQ LTEQ EQ NEQ
        LAND LOR TRUE FALSE NUMBER IDENTIFIER NOT INT FLOAT
@@ -78,32 +78,33 @@ storage_specifier:
    TYPEDEF {};
 
 type_specifier:
-   VOID {} |
-   CHAR {} |
-   SHORT{} |
-   INT   { identtype = INT; } |
-   LONG {} |
-   FLOAT { identtype = FLOAT;} |
-   DOUBLE {} |
-   SIGNED {} |
-   UNSIGNED {} |
-   compoundtype {} |
-   enumerator {} |
-   typedefname {};
+   VOID         {} |
+   CHAR         {} |
+   SHORT        {} |
+   INT          { identtype = INT; } |
+   LONG         {} |
+   FLOAT        { identtype = FLOAT;} |
+   DOUBLE       {} |
+   SIGNED       {} |
+   UNSIGNED     {} |
+   compoundtype { identtype = STRUCT; } |
+   enumerator   {} |
+   typedefname  {};
 
 compoundtype:
-   struct_or_union IDENTIFIER A '{' struct_declarations '}' {} |
-   struct_or_union '{' '}' {} |   struct_or_union IDENTIFIER A {};
+   struct_or_union IDENTIFIER A '{' struct_declarations '}'
+            { udtentry = get_udt($2); } |
+   struct_or_union B: '{' '}' {} |
+   struct_or_union IDENTIFIER { udtentry = get_udt($2); };
 
-A:
-   { add_user_defined_type($<str>0); };
+A: { add_user_defined_type($<str>0); };
+B: { add_user_defined_type("anon"); };
 
 struct_or_union:
    STRUCT {} |
    UNION {};
 
 struct_declarations:
-   {} |
    struct_declaration ';' {} |
    struct_declaration struct_declarations {};
 
@@ -242,9 +243,11 @@ multiplicative_expression:
                { $$ = binst($1, $3, '/'); };
 
 postfix_expression:
-   prefix_expression      { $$ = $1; } |
-   prefix_expression INCR { $$ = postfix($1, INCR); } |
-   prefix_expression DECR { $$ = postfix($1, DECR); };
+   prefix_expression       { $$ = $1; } |
+   postfix_expression INCR { $$ = postfix($1, INCR); } |
+   postfix_expression DECR { $$ = postfix($1, DECR); } |
+   postfix_expression '.' IDENTIFIER { $$ = access_member($1, $3); } |
+   postfix_expression DEREF IDENTIFIER { $$ = postfix($1, DECR); };
 
 prefix_expression:
    terminal { } |
