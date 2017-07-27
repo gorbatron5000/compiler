@@ -9,7 +9,7 @@
 
 struct symboltable *symtbltop;
 struct symbol *currfunc, *calledfunc, *currstruct, **udttable;
-int udtmax, udts, parameter;
+int udtmax, udts, parameter, structsize;
 
 int widthof(int token)
 {
@@ -48,13 +48,17 @@ struct symbol *add_udt(struct symbol *ent)
       memcpy(udttable, tmp, sizeof(struct symbol*) * udts);
    }
 
+   ent->type = type(NULL, 1, STRUCT);
    return (udttable[udts++] = ent);
 }
 
 struct type *type(struct type *t, int sz, int base)
 {
    struct type *tt = malloc(sizeof(struct type));
-   tt->type = t;
+   if (base == STRUCT)
+      tt->udttype = udtentry;
+   else
+      tt->type = t;
    tt->width = t ? sz * t->width : sz * widthof(base);
    tt->base = base;
    return tt;
@@ -122,7 +126,7 @@ struct symbol *add_symbol(struct symbol *s)
 
    if (parameter)
       insert_param(s);
-printf("adding %s %d\n", s->id, s->type->base); 
+
    sl->ptr = s;
    sl->next = symtbltop->slist;
    symtbltop->slist = sl;
@@ -159,13 +163,23 @@ int comparetypes(struct type *t1, struct type *t2)
    
 }
 
+void show_members(struct symbol *udt)
+{
+   struct symbollist *members;
+   printf("base: %s ", udt->id);
+   for (members = udt->members; members; members = members->next)
+      printf("%s ", members->ptr->id);
+   printf("\n");
+}
+
 void add_member(struct symbol *member)
 {
    struct symbollist *ptr;
    for (ptr = currstruct->members; ptr && ptr->next; ptr = ptr->next);
    ptr = ptr ? (ptr->next = malloc(sizeof(struct symbollist))) :
-               malloc(sizeof(struct symbollist));
+               (currstruct->members = malloc(sizeof(struct symbollist)));
    ptr->ptr = member;
+   structsize += member->type->base;
 }
 
 void add_user_defined_type(char *name)

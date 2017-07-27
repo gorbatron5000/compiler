@@ -15,7 +15,6 @@
 #define UNARY     (1 << 16)
 #define COPY      (1 << 17)
 #define ASM       (1 << 18)
-#define ADDRESS   (1 << 19)
 #define LONGLONG  (1 << 20)
 #define ACC       (1 << 21)
 #define EMPTY     (1 << 22)
@@ -26,6 +25,7 @@
 #define MAXRTL 30
 #define MAXLBL 16
 
+#define isaddr(x) (x == ARRAY || x == POINTER)
 #define optype(x) (strchr("+-*/", x) ? BINST : COPY)
 #define makejumplist() (malloc(sizeof(struct jumplist)))
 #define makelist() (malloc(sizeof(struct list)))
@@ -81,7 +81,6 @@ struct list *copy(struct list *dst, struct list *src);
 struct list *ret(struct list *ret);
 struct list *makeimmediate(int d);
 struct list *postfix(struct list *rtl, int oper);
-struct list *identifier(char *ident);
 struct list *terminal(int type, char *str);
 struct list *accumulator(struct list *r1, struct list *r2, int op);
 struct list *arrayref(char *ident, struct list *rtl);

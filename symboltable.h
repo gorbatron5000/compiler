@@ -6,7 +6,10 @@
 #define maketype() (malloc(sizeof(struct type)))
 
 struct type {
-   struct type *type;
+   union {
+      struct type *type;
+      struct symbol *udttype;
+   };
    int width;
    int base;
 };
@@ -30,8 +33,8 @@ struct symboltable {
    struct symboltable *prev;
 };
 
-extern struct symbol **udttable;
-extern int udtmax, udts;
+extern struct symbol **udttable, *currstruct;
+extern int udtmax, udts, structsize;
 
 struct symbol *get_udt(char*);
 struct symbol *add_udt(struct symbol*);
@@ -56,5 +59,6 @@ void add_member(struct symbol *member);
 void add_user_defined_type(char *name);
 struct symbol *symbol(char *ident, struct type *t);
 void print_decls();
+void show_members(struct symbol*);
 
 #endif

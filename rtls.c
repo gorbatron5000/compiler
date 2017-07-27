@@ -16,7 +16,7 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
    newrtl->sptr = s;
    newrtl->type = type;
 
-   if (newrtl->type == BINST)
+   if (newrtl->type == BINST || newrtl->type == ADDRESS)
       newrtl->dst = temp(INT);
    else if (newrtl->type == SYMBOL || newrtl->type == PARAM ||
             newrtl->type == RETURN)
@@ -35,6 +35,8 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
       else
          newrtl->dst = s->lhs->dst;
    }
+   else if (newrtl->type == STRUCT)
+      newrtl->dst = temp(STRUCT);
 
    if (rtls) {
       newrtl->next = rtl->next;
@@ -159,13 +161,6 @@ struct list *postfix(struct list *rtl, int oper)
    return new_rtl(s3, COPY);
 }
 
-struct list *identifier(char *ident)
-{
-   union semrec *s = makesemrec();
-   s->entry = lookup(ident);
-   return new_rtl(s, SYMBOL);
-}
-
 struct list *terminal(int type, char *str)
 {
    union semrec *s = makesemrec();
@@ -173,7 +168,8 @@ struct list *terminal(int type, char *str)
       s->entry = lookup(str);
    else if (type == NUMBER)
       return makeimmediate(atoi(str));
-   return new_rtl(s, SYMBOL);
+   return new_rtl(s, isaddr(s->entry->type->base) ? ADDRESS :
+                  s->entry->type->base == STRUCT ? STRUCT : SYMBOL);
 }
 
 struct list *accumulator(struct list *r1, struct list *r2, int op)
@@ -283,9 +279,16 @@ void param(struct symbol *p)
 
 struct list *access_member(struct list *b, char *member)
 {
-   static struct list *base;
-   base = base ? base : b;
-   return NULL; 
+   struct symbollist *members = b->dst->type->udttype->members;
+   int offset = 0;
+
+   for (; members; members = members->next)
+      if (!strcmp(members->ptr->id, member))
+         break;
+      else
+         offset += members->ptr->type->width;
+
+   return binst(b, makeimmediate(offset), '+');
 }
 
 void print_rtls()
@@ -319,5 +322,7 @@ void print_rtls()
                                        toktostr(ptr->sptr->oper));
       else if (ptr->type == RETURN)
          printf("return(%s)\n", ptr->dst ? ptr->dst->id : "");
+      else if (ptr->type == ADDRESS || ptr->type == STRUCT)
+         printf("%s = &%s\n", ptr->dst->id, ptr->sptr->entry->id);
    }
 }

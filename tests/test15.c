@@ -1,10 +1,15 @@
-
 struct a {
-   int b,c,d,e,f,g;
+   int q,r,s,b,t,u,v;
+};
+
+struct c {
+   struct a d;
+   int l;
 };
 
 int main()
 {
-   struct a b;
-   b.c = 1;
+   struct a e;
+   e.b = 1;
+   e.l = 2;
 }

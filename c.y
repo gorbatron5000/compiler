@@ -93,8 +93,10 @@ type_specifier:
 
 compoundtype:
    struct_or_union IDENTIFIER A '{' struct_declarations '}'
-            { udtentry = get_udt($2); } |
-   struct_or_union B: '{' '}' {} |
+            { udtentry = get_udt($2);
+              currstruct->type->base = structsize;
+              structsize = 0; } |
+   struct_or_union B '{' '}' {} |
    struct_or_union IDENTIFIER { udtentry = get_udt($2); };
 
 A: { add_user_defined_type($<str>0); };
@@ -106,14 +108,14 @@ struct_or_union:
 
 struct_declarations:
    struct_declaration ';' {} |
-   struct_declaration struct_declarations {};
+   struct_declaration ';' struct_declarations {};
 
 struct_declaration:
    type_specifier struct_member {};
 
 struct_member:
    var { add_member($1); } |
-   var ',' struct_member {};
+   var ',' struct_member { add_member($1); };
 
 enumerator:
    ENUMERATOR {};
@@ -172,8 +174,8 @@ Q: { decrease_scope(); };
 
 param_list:
    { parameter = 0; } |
-   type_specifier var ',' param_list {} |
-   type_specifier var {};
+   type_specifier var ',' param_list { add_symbol($2); } |
+   type_specifier var { add_symbol($2); };
 
 if_statement:
    IF '(' expression ')' lbl statement
