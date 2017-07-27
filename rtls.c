@@ -16,10 +16,12 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
    newrtl->sptr = s;
    newrtl->type = type;
 
-   if (newrtl->type == BINST || newrtl->type == ADDRESS)
-      newrtl->dst = temp(INT);
+   if (newrtl->type == BINST)
+      newrtl->dst = temp(isaddr(s->lhs->dst->type->base) ?
+                         s->lhs->dst->type->type->base : INT);
    else if (newrtl->type == SYMBOL || newrtl->type == PARAM ||
-            newrtl->type == RETURN)
+            newrtl->type == RETURN || newrtl->type == STRUCT ||
+            newrtl->type == ADDRESS)
       newrtl->dst = s->entry;
    else if (newrtl->type == ACC) {
       newrtl->type = BINST;
@@ -35,8 +37,6 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
       else
          newrtl->dst = s->lhs->dst;
    }
-   else if (newrtl->type == STRUCT)
-      newrtl->dst = temp(STRUCT);
 
    if (rtls) {
       newrtl->next = rtl->next;
@@ -193,6 +193,7 @@ struct list *arrayref(char *ident, struct list *rtl)
    tptr = tptr ? tptr->type : lookup(ident)->type->type;
    acc = acc ? acc : copy(maketemporary(), makeimmediate(0));
    rhs = binst(rtl, makeimmediate(tptr->width), '*');
+
    return accumulator(acc, rhs, '+');
 }
 
@@ -291,6 +292,16 @@ struct list *access_member(struct list *b, char *member)
    return binst(b, makeimmediate(offset), '+');
 }
 
+char *arg(struct symbol *rtl)
+{
+   char *rg = malloc(MAXRTL);
+   if (isaddr(rtl->type->base) || rtl->type->base == STRUCT)
+      sprintf(rg, "&%s", rtl->id);
+   else
+      sprintf(rg, "%s", rtl->id);
+   return rg;
+}
+
 void print_rtls()
 {
    struct list *ptr;
@@ -311,7 +322,7 @@ void print_rtls()
       }
       else if (ptr->type == COPY)
          printf("%s = %s;\n", ptr->sptr->lhs->dst->id,
-                             ptr->sptr->rhs->dst->id);
+                              ptr->sptr->rhs->dst->id);
       else if (ptr->type == FUNC || ptr->type == ASM || ptr->type == CALL)
          printf("%s\n", ptr->sptr->label);
       else if (ptr->type == PARAM)
@@ -322,7 +333,8 @@ void print_rtls()
                                        toktostr(ptr->sptr->oper));
       else if (ptr->type == RETURN)
          printf("return(%s)\n", ptr->dst ? ptr->dst->id : "");
-      else if (ptr->type == ADDRESS || ptr->type == STRUCT)
-         printf("%s = &%s\n", ptr->dst->id, ptr->sptr->entry->id);
+      else if (ptr->type == LOAD)
+         printf("%s = *%s\n", ptr->sptr->lhs->dst->id,
+                              ptr->sptr->rhs->dst->id);
    }
 }

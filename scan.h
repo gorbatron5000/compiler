@@ -8,6 +8,7 @@
 #define TOKENS 61
 #define MAXSTR 1000
 
+#define LOAD      (1 << 5)
 #define ADDRESS   (1 << 6)
 #define POINTER   (1 << 7)
 #define ARRAY     (1 << 8)

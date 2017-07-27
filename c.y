@@ -26,7 +26,7 @@
             postfix_expression prefix_expression statements assignment
             while_statement for_statement opt_expression function E
             arrayref
-%type <decl> declaration vars var param_list
+%type <decl> declaration vars var param_list A B
 %type <type> arrays addresses storage_specifier enumerator typedefname
 %type <num> num type_specifier assign_oper
 %type <jump> jump
@@ -94,13 +94,13 @@ type_specifier:
 compoundtype:
    struct_or_union IDENTIFIER A '{' struct_declarations '}'
             { udtentry = get_udt($2);
-              currstruct->type->base = structsize;
+              $3->type->width = structsize;
               structsize = 0; } |
    struct_or_union B '{' '}' {} |
    struct_or_union IDENTIFIER { udtentry = get_udt($2); };
 
-A: { add_user_defined_type($<str>0); };
-B: { add_user_defined_type("anon"); };
+A: { $$ = add_user_defined_type($<str>0); };
+B: { $$ = add_user_defined_type("anon"); };
 
 struct_or_union:
    STRUCT {} |
@@ -132,7 +132,9 @@ var:
    addresses IDENTIFIER arrays { $$ = symbol($2, join($3, $1)); };
 
 addresses:
-   { $$ = type(NULL, 1, identtype); } |
+   { $$ = type(NULL, 1, identtype);
+     if (identtype == STRUCT)
+        $$->width = udtentry->type->width; } |
    '*' addresses { $$ = type($2, 1, POINTER); } |
    '&' addresses { $$ = type($2, 1, ADDRESS); };
 

@@ -56,7 +56,7 @@ void backpatch(struct jumplist *jmps, struct list *lbl);
 struct jumplist *merge(struct jumplist *l1, struct jumplist *l2);
 struct jumplist *jump();
 void add_member(struct symbol *member);
-void add_user_defined_type(char *name);
+struct symbol *add_user_defined_type(char *name);
 struct symbol *symbol(char *ident, struct type *t);
 void print_decls();
 void show_members(struct symbol*);

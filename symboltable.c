@@ -27,6 +27,7 @@ int widthof(int token)
 struct symbol *get_udt(char *udt)
 {
    int i;
+
    for (i = 0; i < udts; i++)
       if (!strcmp(udt, udttable[i]->id))
          return udttable[i];
@@ -179,10 +180,10 @@ void add_member(struct symbol *member)
    ptr = ptr ? (ptr->next = malloc(sizeof(struct symbollist))) :
                (currstruct->members = malloc(sizeof(struct symbollist)));
    ptr->ptr = member;
-   structsize += member->type->base;
+   structsize += member->type->width;
 }
 
-void add_user_defined_type(char *name)
+struct symbol *add_user_defined_type(char *name)
 {
    struct symbol *s = malloc(sizeof(struct symbol));
    s->id = malloc(strlen(name)+1);

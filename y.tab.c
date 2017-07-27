@@ -132,16 +132,16 @@ extern int YYPARSE_DECL();
 #define YYERRCODE 256
 typedef short YYINT;
 static const YYINT yylhs[] = {                           -1,
-    0,    0,   33,   33,   12,   12,   12,    1,    1,    1,
-    1,    1,    1,    1,   36,   36,   38,   38,   38,   37,
-   20,   26,   26,   26,   26,   26,   30,   30,   30,   30,
-   30,   30,   30,   30,   30,   30,   30,   30,   39,   39,
-   39,   41,   43,   40,   40,   42,   42,   44,   45,   45,
-   27,   28,   21,   21,   21,   22,   25,   25,   25,   24,
-   24,   29,   13,   13,   31,   31,   31,   31,   31,   31,
-   31,   31,   31,   31,   31,   31,   17,   17,   18,   46,
-   47,   34,   35,   23,   23,   23,    9,   14,   15,   16,
-   16,   32,    6,    3,    3,    4,    4,    8,    8,    8,
+    0,    0,   35,   35,   12,   12,   12,    1,    1,    1,
+    1,    1,    1,    1,   38,   38,   40,   40,   40,   39,
+   20,   28,   28,   28,   28,   28,   32,   32,   32,   32,
+   32,   32,   32,   32,   32,   32,   32,   32,   41,   41,
+   41,   24,   25,   42,   42,   43,   43,   44,   45,   45,
+   29,   30,   21,   21,   21,   22,   27,   27,   27,   26,
+   26,   31,   13,   13,   33,   33,   33,   33,   33,   33,
+   33,   33,   33,   33,   33,   33,   17,   17,   18,   46,
+   47,   36,   37,   23,   23,   23,    9,   14,   15,   16,
+   16,   34,    6,    3,    3,    4,    4,    8,    8,    8,
     7,    7,    7,   10,   10,   10,   10,   10,   11,   11,
    11,   19,   19,    5,    5,    5,    5,    2,
 };
@@ -183,9 +183,9 @@ static const YYINT yydefred[] = {                         0,
 static const YYINT yydgoto[] = {                         14,
    81,  116,   82,   83,   84,   85,   86,   87,   88,   89,
    90,   91,   92,   93,   94,  100,   15,   24,  107,   95,
-   27,   28,   46,   43,   29,    0,   17,   18,   49,   19,
-  133,  178,   20,   40,  172,   96,   97,  146,   21,   22,
-   38,   51,   32,   52,   57,   60,   66,
+   27,   28,   46,   38,   32,   43,   29,    0,   17,   18,
+   49,   19,  133,  178,   20,   40,  172,   96,   97,  146,
+   21,   22,   51,   52,   57,   60,   66,
 };
 static const YYINT yysindex[] = {                       110,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
@@ -232,9 +232,9 @@ static const YYINT yyrindex[] = {                       228,
 static const YYINT yygindex[] = {                       235,
   -73,   49,    0,  109,   64,  -10,   55,  106,    0,   70,
     0,  -66,   34,    0,    0,  -91,    0,    0,    0,    7,
-  223,   29,  199,  206,  120,    0,    0,    0,    0,   54,
-    0, -151,    0,  182,    0,    0,    0,    0,    0,    0,
-    0,  204,    0,    0,  201,    0,    0,
+  223,   29,  199,    0,    0,  206,  120,    0,    0,    0,
+    0,   54,    0, -151,    0,  182,    0,    0,    0,    0,
+    0,    0,  204,    0,  201,    0,    0,
 };
 #define YYTABLESIZE 425
 static const YYINT yytable[] = {                         41,
@@ -510,7 +510,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 274 "c.y"
+#line 276 "c.y"
 
 int main() {
    yyparse();
@@ -872,7 +872,7 @@ break;
 case 39:
 #line 96 "c.y"
 	{ udtentry = get_udt(yystack.l_mark[-4].str);
-              currstruct->type->base = structsize;
+              yystack.l_mark[-3].decl->type->width = structsize;
               structsize = 0; }
 break;
 case 40:
@@ -885,11 +885,11 @@ case 41:
 break;
 case 42:
 #line 102 "c.y"
-	{ add_user_defined_type(yystack.l_mark[0].str); }
+	{ yyval.decl = add_user_defined_type(yystack.l_mark[0].str); }
 break;
 case 43:
 #line 103 "c.y"
-	{ add_user_defined_type("anon"); }
+	{ yyval.decl = add_user_defined_type("anon"); }
 break;
 case 44:
 #line 106 "c.y"
@@ -945,133 +945,135 @@ case 56:
 break;
 case 57:
 #line 135 "c.y"
-	{ yyval.type = type(NULL, 1, identtype); }
+	{ yyval.type = type(NULL, 1, identtype);
+     if (identtype == STRUCT)
+        yyval.type->width = udtentry->type->width; }
 break;
 case 58:
-#line 136 "c.y"
+#line 138 "c.y"
 	{ yyval.type = type(yystack.l_mark[0].type, 1, POINTER); }
 break;
 case 59:
-#line 137 "c.y"
+#line 139 "c.y"
 	{ yyval.type = type(yystack.l_mark[0].type, 1, ADDRESS); }
 break;
 case 60:
-#line 140 "c.y"
+#line 142 "c.y"
 	{}
 break;
 case 61:
-#line 141 "c.y"
+#line 143 "c.y"
 	{ yyval.type = type(yystack.l_mark[0].type, yystack.l_mark[-2].num, ARRAY); }
 break;
 case 62:
-#line 144 "c.y"
+#line 146 "c.y"
 	{ yyval.num = atoi(yylval.str); }
 break;
 case 63:
-#line 147 "c.y"
+#line 149 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 64:
-#line 148 "c.y"
+#line 150 "c.y"
 	{ binst(yystack.l_mark[-2].rtl, yystack.l_mark[0].rtl, yystack.l_mark[-1].num); }
 break;
 case 65:
-#line 151 "c.y"
+#line 153 "c.y"
 	{ yyval.num = '='; }
 break;
 case 66:
-#line 152 "c.y"
+#line 154 "c.y"
 	{ yyval.num = NEQ; }
 break;
 case 67:
-#line 153 "c.y"
+#line 155 "c.y"
 	{ yyval.num = ADDEQ; }
 break;
 case 68:
-#line 154 "c.y"
+#line 156 "c.y"
 	{ yyval.num = SUBEQ; }
 break;
 case 69:
-#line 155 "c.y"
+#line 157 "c.y"
 	{ yyval.num = MULEQ; }
 break;
 case 70:
-#line 156 "c.y"
+#line 158 "c.y"
 	{ yyval.num = DIVEQ; }
 break;
 case 71:
-#line 157 "c.y"
+#line 159 "c.y"
 	{ yyval.num = MODEQ; }
 break;
 case 72:
-#line 158 "c.y"
+#line 160 "c.y"
 	{ yyval.num = LSHIFTEQ; }
 break;
 case 73:
-#line 159 "c.y"
+#line 161 "c.y"
 	{ yyval.num = RSHIFTEQ; }
 break;
 case 74:
-#line 160 "c.y"
+#line 162 "c.y"
 	{ yyval.num = ANDEQ; }
 break;
 case 75:
-#line 161 "c.y"
+#line 163 "c.y"
 	{ yyval.num = XOREQ; }
 break;
 case 76:
-#line 162 "c.y"
+#line 164 "c.y"
 	{ yyval.num = OREQ; }
 break;
 case 77:
-#line 165 "c.y"
+#line 167 "c.y"
 	{}
 break;
 case 78:
-#line 167 "c.y"
+#line 169 "c.y"
 	{ func(yystack.l_mark[-10].decl, yystack.l_mark[-6].decl, yystack.l_mark[-9].rtl); }
 break;
 case 79:
-#line 169 "c.y"
+#line 171 "c.y"
 	{ calledfunc = yystack.l_mark[0].decl; parameter = 1; yyval.rtl = empty(); }
 break;
 case 80:
-#line 170 "c.y"
+#line 172 "c.y"
 	{ parameter = 0; }
 break;
 case 81:
-#line 171 "c.y"
+#line 173 "c.y"
 	{ currfunc = calledfunc; }
 break;
 case 82:
-#line 172 "c.y"
+#line 174 "c.y"
 	{ increase_scope(); }
 break;
 case 83:
-#line 173 "c.y"
+#line 175 "c.y"
 	{ decrease_scope(); }
 break;
 case 84:
-#line 176 "c.y"
+#line 178 "c.y"
 	{ parameter = 0; }
 break;
 case 85:
-#line 177 "c.y"
+#line 179 "c.y"
 	{ add_symbol(yystack.l_mark[-2].decl); }
 break;
 case 86:
-#line 178 "c.y"
+#line 180 "c.y"
 	{ add_symbol(yystack.l_mark[0].decl); }
 break;
 case 87:
-#line 182 "c.y"
+#line 184 "c.y"
 	{ make_jumps(yystack.l_mark[-3].rtl);
                  backpatch(yystack.l_mark[-3].rtl->truelist, yystack.l_mark[-1].rtl);
                  yyval.rtl = makelist();
                  yyval.rtl->falselist = yystack.l_mark[-3].rtl->falselist; }
 break;
 case 88:
-#line 189 "c.y"
+#line 191 "c.y"
 	{ make_jumps(yystack.l_mark[-4].rtl);
                  backpatch(yystack.l_mark[-4].rtl->truelist, yystack.l_mark[-2].rtl);
                  backpatch(yystack.l_mark[0].jump, yystack.l_mark[-5].rtl);
@@ -1079,7 +1081,7 @@ case 88:
                  yyval.rtl->falselist = yystack.l_mark[-4].rtl->falselist; }
 break;
 case 89:
-#line 198 "c.y"
+#line 200 "c.y"
 	{  make_jumps(yystack.l_mark[-8].rtl);
                   backpatch(yystack.l_mark[-8].rtl->truelist, yystack.l_mark[-2].rtl);
                   backpatch(yystack.l_mark[-4].jump, yystack.l_mark[-9].rtl);
@@ -1088,27 +1090,27 @@ case 89:
                   yyval.rtl->falselist = yystack.l_mark[-8].rtl->falselist; }
 break;
 case 90:
-#line 206 "c.y"
+#line 208 "c.y"
 	{}
 break;
 case 91:
-#line 207 "c.y"
+#line 209 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 92:
-#line 210 "c.y"
+#line 212 "c.y"
 	{ yyval.jump = jump(); }
 break;
 case 93:
-#line 213 "c.y"
+#line 215 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 94:
-#line 216 "c.y"
+#line 218 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 95:
-#line 218 "c.y"
+#line 220 "c.y"
 	{ make_jumps(yystack.l_mark[-3].rtl);
                  make_jumps(yystack.l_mark[0].rtl);
                  backpatch(yystack.l_mark[-3].rtl->falselist, yystack.l_mark[-1].rtl); 
@@ -1116,11 +1118,11 @@ case 95:
                  yyval.rtl->falselist = yystack.l_mark[0].rtl->falselist; }
 break;
 case 96:
-#line 225 "c.y"
+#line 227 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 97:
-#line 227 "c.y"
+#line 229 "c.y"
 	{ make_jumps(yystack.l_mark[-3].rtl);
                  make_jumps(yystack.l_mark[0].rtl);
                  backpatch(yystack.l_mark[-3].rtl->truelist, yystack.l_mark[-1].rtl);
@@ -1128,91 +1130,91 @@ case 97:
                  yyval.rtl->truelist = yystack.l_mark[0].rtl->truelist; }
 break;
 case 98:
-#line 234 "c.y"
+#line 236 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 99:
-#line 236 "c.y"
+#line 238 "c.y"
 	{ yyval.rtl = binst(yystack.l_mark[-2].rtl, yystack.l_mark[0].rtl, '+'); }
 break;
 case 100:
-#line 238 "c.y"
+#line 240 "c.y"
 	{ yyval.rtl = binst(yystack.l_mark[-2].rtl, yystack.l_mark[0].rtl, '-'); }
 break;
 case 101:
-#line 241 "c.y"
+#line 243 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 102:
-#line 243 "c.y"
+#line 245 "c.y"
 	{ yyval.rtl = binst(yystack.l_mark[-2].rtl, yystack.l_mark[0].rtl, '*'); }
 break;
 case 103:
-#line 245 "c.y"
+#line 247 "c.y"
 	{ yyval.rtl = binst(yystack.l_mark[-2].rtl, yystack.l_mark[0].rtl, '/'); }
 break;
 case 104:
-#line 248 "c.y"
+#line 250 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl; }
 break;
 case 105:
-#line 249 "c.y"
+#line 251 "c.y"
 	{ yyval.rtl = postfix(yystack.l_mark[-1].rtl, INCR); }
 break;
 case 106:
-#line 250 "c.y"
+#line 252 "c.y"
 	{ yyval.rtl = postfix(yystack.l_mark[-1].rtl, DECR); }
 break;
 case 107:
-#line 251 "c.y"
+#line 253 "c.y"
 	{ yyval.rtl = access_member(yystack.l_mark[-2].rtl, yystack.l_mark[0].str); }
 break;
 case 108:
-#line 252 "c.y"
+#line 254 "c.y"
 	{ yyval.rtl = postfix(yystack.l_mark[-2].rtl, DECR); }
 break;
 case 109:
-#line 255 "c.y"
+#line 257 "c.y"
 	{ }
 break;
 case 110:
-#line 256 "c.y"
+#line 258 "c.y"
 	{ binst(yystack.l_mark[0].rtl, makeimmediate(1), INCR); }
 break;
 case 111:
-#line 257 "c.y"
+#line 259 "c.y"
 	{ binst(yystack.l_mark[0].rtl, makeimmediate(1), DECR); }
 break;
 case 112:
-#line 260 "c.y"
+#line 262 "c.y"
 	{ yyval.rtl = arrayref(NULL, NULL); }
 break;
 case 113:
-#line 261 "c.y"
+#line 263 "c.y"
 	{ yyval.rtl = arrayref(yystack.l_mark[-4].str, yystack.l_mark[-1].rtl); }
 break;
 case 114:
-#line 264 "c.y"
+#line 266 "c.y"
 	{ yyval.rtl = terminal(TRUE, NULL); }
 break;
 case 115:
-#line 265 "c.y"
+#line 267 "c.y"
 	{ yyval.rtl = terminal(FALSE, NULL); }
 break;
 case 116:
-#line 266 "c.y"
+#line 268 "c.y"
 	{ yyval.rtl = yystack.l_mark[0].rtl ? binst(terminal(IDENTIFIER,yystack.l_mark[-1].str), yystack.l_mark[0].rtl, '+')
                                    : terminal(IDENTIFIER, yystack.l_mark[-1].str); }
 break;
 case 117:
-#line 268 "c.y"
+#line 270 "c.y"
 	{ yyval.rtl = terminal(NUMBER, yystack.l_mark[0].str); }
 break;
 case 118:
-#line 271 "c.y"
+#line 273 "c.y"
 	{ yyval.rtl = gtlabel(); }
 break;
-#line 1216 "y.tab.c"
+#line 1218 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;
