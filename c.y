@@ -25,7 +25,6 @@
             multiplicative_expression additive_expression if_statement
             postfix_expression prefix_expression statements assignment
             while_statement for_statement opt_expression function E
-            arrayref
 %type <decl> declaration vars var param_list A B
 %type <type> arrays addresses storage_specifier enumerator typedefname
 %type <num> num type_specifier assign_oper
@@ -129,7 +128,9 @@ vars:
    var ',' vars { add_symbol($1); $$ = $1; };
 
 var:
-   addresses IDENTIFIER arrays { $$ = symbol($2, join($3, $1)); };
+   addresses IDENTIFIER arrays { 
+      printf("ident: %s type: %d\n", $2, $1->base);
+     $$ = symbol($2, join($3, $1)); };
 
 addresses:
    { $$ = type(NULL, 1, identtype);
@@ -240,33 +241,29 @@ additive_expression:
                { $$ = binst($1, $3, '-'); };
 
 multiplicative_expression:
-   postfix_expression { $$ = $1; } |
+   prefix_expression { $$ = $1; } |
    multiplicative_expression '*' postfix_expression
                { $$ = binst($1, $3, '*'); } |
    multiplicative_expression '/' postfix_expression
                { $$ = binst($1, $3, '/'); };
 
+prefix_expression:
+   postfix_expression { } |
+   INCR postfix_expression { binst($2, makeimmediate(1), INCR); } |
+   DECR postfix_expression { binst($2, makeimmediate(1), DECR); };
+
 postfix_expression:
-   prefix_expression       { $$ = $1; } |
+   terminal { $$ = $1; } |
+   postfix_expression '[' expression ']' { $$ = arrayref($1, $3); } |
    postfix_expression INCR { $$ = postfix($1, INCR); } |
    postfix_expression DECR { $$ = postfix($1, DECR); } |
    postfix_expression '.' IDENTIFIER { $$ = access_member($1, $3); } |
    postfix_expression DEREF IDENTIFIER { $$ = postfix($1, DECR); };
 
-prefix_expression:
-   terminal { } |
-   INCR terminal { binst($2, makeimmediate(1), INCR); } |
-   DECR terminal { binst($2, makeimmediate(1), DECR); };
-
-arrayref:
-   { $$ = arrayref(NULL, NULL); } |
-   arrayref '[' expression ']' { $$ = arrayref($<str>0, $3); };
-
 terminal:
-   TRUE         { $$ = terminal(TRUE, NULL); } |
-   FALSE        { $$ = terminal(FALSE, NULL); } |
-   IDENTIFIER arrayref { $$ = $2 ? binst(terminal(IDENTIFIER,$1), $2, '+')
-                                   : terminal(IDENTIFIER, $1); } |
+   TRUE       { $$ = terminal(TRUE, NULL); } |
+   FALSE      { $$ = terminal(FALSE, NULL); } |
+   IDENTIFIER { $$ = terminal(IDENTIFIER, $1); } |
    NUMBER     { $$ = terminal(NUMBER, $1); };
 
 lbl:

@@ -56,8 +56,10 @@ struct symbol *add_udt(struct symbol *ent)
 struct type *type(struct type *t, int sz, int base)
 {
    struct type *tt = malloc(sizeof(struct type));
-   if (base == STRUCT)
+   if (base == STRUCT) {
+      printf("udtentry: %p\n", udtentry);
       tt->udttype = udtentry;
+   }
    else
       tt->type = t;
    tt->width = t ? sz * t->width : sz * widthof(base);
@@ -135,11 +137,11 @@ struct symbol *add_symbol(struct symbol *s)
    return sl->ptr;
 }
 
-struct symbol *temp(int t)
+struct symbol *temp(struct type *t)
 {
    static int rnum;
    struct symbol *s = malloc(sizeof(struct symbol));
-   s->type = type(NULL, 1, t);
+   s->type = t;
    s->id = malloc(REGSTRING);
    sprintf(s->id, "t%d", rnum++);
    return add_symbol(s);

@@ -46,7 +46,7 @@ void decrease_scope();
 void show_symbols(struct symbollist *f);
 void insert_param(struct symbol *s);
 struct symbol *add_symbol(struct symbol *s);
-struct symbol *temp(int t);
+struct symbol *temp(struct type*);
 struct symbol *lookup(char *id);
 int comparetypes(struct type *t1, struct type *t2);
 struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,

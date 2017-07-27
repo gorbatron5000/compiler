@@ -76,14 +76,14 @@ struct list *func(struct symbol *fdecl, struct symbol *fparams,
    struct list *funcinit);
 struct list *empty();
 struct list *binst(struct list *lhs, struct list *rhs, int oper);
-struct list *maketemporary();
+struct list *maketemporary(struct type *t);
 struct list *copy(struct list *dst, struct list *src);
 struct list *ret(struct list *ret);
 struct list *makeimmediate(int d);
 struct list *postfix(struct list *rtl, int oper);
 struct list *terminal(int type, char *str);
 struct list *accumulator(struct list *r1, struct list *r2, int op);
-struct list *arrayref(char *ident, struct list *rtl);
+struct list *arrayref(struct list*, struct list*);
 struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,
    int test);
 void make_jumps(struct list *rtl);

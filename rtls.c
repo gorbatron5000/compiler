@@ -17,8 +17,7 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
    newrtl->type = type;
 
    if (newrtl->type == BINST)
-      newrtl->dst = temp(isaddr(s->lhs->dst->type->base) ?
-                         s->lhs->dst->type->type->base : INT);
+      newrtl->dst = temp(s->lhs->dst->type);
    else if (newrtl->type == SYMBOL || newrtl->type == PARAM ||
             newrtl->type == RETURN || newrtl->type == STRUCT ||
             newrtl->type == ADDRESS)
@@ -26,12 +25,13 @@ struct list *insert_rtl(struct list *rtl, union semrec *s, int type)
    else if (newrtl->type == ACC) {
       newrtl->type = BINST;
       newrtl->dst = s->lhs->dst;
+      newrtl->dst->type = s->lhs->dst->type;
    }
    else if (newrtl->type == TEMPORARY || newrtl->type == CVT)
-      newrtl->dst = temp(INT);
+      newrtl->dst = temp(s->entry->type);
    else if (newrtl->type == COPY) {
       if (!s->lhs) {
-         newrtl->dst = temp(INT);
+         newrtl->dst = temp(s->rhs->dst->type);
          s->lhs = newrtl;
       }
       else
@@ -116,16 +116,18 @@ struct list *binst(struct list *lhs, struct list *rhs, int oper)
    return new_rtl(s, oper == INCR || oper == DECR ? ACC : optype(oper));
 }
 
-struct list *maketemporary()
+struct list *maketemporary(struct type *t)
 {
    struct list *newrtl;
-   return new_rtl(makesemrec(), TEMPORARY);
+   union semrec *s = makesemrec();
+   s->entry = temp(t);
+   return new_rtl(s, TEMPORARY);
 }
 
 struct list *copy(struct list *dst, struct list *src)
 {
    union semrec *s = makesemrec();
-   s->lhs = dst ? dst : maketemporary();
+   s->lhs = dst ? dst : maketemporary(src->dst->type);
    s->rhs = src;
    s->op = '=';
    return new_rtl(s, COPY);
@@ -181,20 +183,22 @@ struct list *accumulator(struct list *r1, struct list *r2, int op)
    return new_rtl(s, ACC);
 }
 
-struct list *arrayref(char *ident, struct list *rtl)
+struct list *arrayref(struct list *base, struct list *offset)
 {
    static struct type *tptr;
    static struct list *acc;
-   struct list *rhs;
-    
-   if (!rtl)
+   struct list *rhs, *ret;
+printf("base is: %s ptr: %p\n", base->dst->id, base); 
+   if (!offset)
       return (acc = (struct list*) (tptr = NULL));
 
-   tptr = tptr ? tptr->type : lookup(ident)->type->type;
-   acc = acc ? acc : copy(maketemporary(), makeimmediate(0));
-   rhs = binst(rtl, makeimmediate(tptr->width), '*');
-
-   return accumulator(acc, rhs, '+');
+   tptr = lookup(base->dst->id)->type->type;
+   acc = acc ? acc : copy(maketemporary(tptr), makeimmediate(0));
+   rhs = binst(offset, makeimmediate(tptr->width), '*');
+   ret = accumulator(acc, rhs, '+');
+   ret->dst->type = tptr;
+printf("ident is: %s\n", ret->dst->id);
+   return ret;
 }
 
 struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,
