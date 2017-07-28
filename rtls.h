@@ -64,6 +64,7 @@ struct type;
 
 extern struct list *rtls, *rtlend;
 extern struct symbol *udtentry;
+extern struct list *acc;
 extern int identtype;
 
 struct list *insert_rtl(struct list *rtl, union semrec *s, int type);

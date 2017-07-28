@@ -56,14 +56,25 @@ struct symbol *add_udt(struct symbol *ent)
 struct type *type(struct type *t, int sz, int base)
 {
    struct type *tt = malloc(sizeof(struct type));
-   if (base == STRUCT) {
-      printf("udtentry: %p\n", udtentry);
+
+   if (base == STRUCT)
       tt->udttype = udtentry;
-   }
    else
       tt->type = t;
-   tt->width = t ? sz * t->width : sz * widthof(base);
+   
+   if (!t && base == ARRAY) {
+      if (identtype == STRUCT)
+         tt->width = sz * udtentry->type->width;
+      else
+         tt->width = sz * widthof(identtype);
+   }
+   else if (t)
+      tt->width = sz * t->width;
+   else
+      tt->width = sz * widthof(base);
+
    tt->base = base;
+   tt->sz = sz;
    return tt;
 }
 
@@ -166,22 +177,12 @@ int comparetypes(struct type *t1, struct type *t2)
    
 }
 
-void show_members(struct symbol *udt)
-{
-   struct symbollist *members;
-   printf("base: %s ", udt->id);
-   for (members = udt->members; members; members = members->next)
-      printf("%s ", members->ptr->id);
-   printf("\n");
-}
-
 void add_member(struct symbol *member)
 {
-   struct symbollist *ptr;
-   for (ptr = currstruct->members; ptr && ptr->next; ptr = ptr->next);
-   ptr = ptr ? (ptr->next = malloc(sizeof(struct symbollist))) :
-               (currstruct->members = malloc(sizeof(struct symbollist)));
+   struct symbollist *ptr = malloc(sizeof(struct symbollist));
+   ptr->next = currstruct->members;
    ptr->ptr = member;
+   currstruct->members = ptr;
    structsize += member->type->width;
 }
 
@@ -215,3 +216,13 @@ void print_decls()
          printf("\n");
       }
 }
+
+void show_members(struct symbol *udt)
+{
+   struct symbollist *members;
+   printf("base: %s ", udt->id);
+   for (members = udt->members; members; members = members->next)
+      printf("%s ", members->ptr->id);
+   printf("\n");
+}
+

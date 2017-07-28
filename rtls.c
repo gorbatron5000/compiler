@@ -185,19 +185,10 @@ struct list *accumulator(struct list *r1, struct list *r2, int op)
 
 struct list *arrayref(struct list *base, struct list *offset)
 {
-   static struct type *tptr;
-   static struct list *acc;
    struct list *rhs, *ret;
-printf("base is: %s ptr: %p\n", base->dst->id, base); 
-   if (!offset)
-      return (acc = (struct list*) (tptr = NULL));
-
-   tptr = lookup(base->dst->id)->type->type;
-   acc = acc ? acc : copy(maketemporary(tptr), makeimmediate(0));
-   rhs = binst(offset, makeimmediate(tptr->width), '*');
-   ret = accumulator(acc, rhs, '+');
-   ret->dst->type = tptr;
-printf("ident is: %s\n", ret->dst->id);
+   rhs = binst(offset, makeimmediate(base->dst->type->type->width), '*');
+   ret = binst(base, rhs, '+');
+   ret->dst->type = base->dst->type->type;
    return ret;
 }
 
@@ -292,8 +283,9 @@ struct list *access_member(struct list *b, char *member)
          break;
       else
          offset += members->ptr->type->width;
-
-   return binst(b, makeimmediate(offset), '+');
+   struct list *r = binst(b, makeimmediate(offset), '+');
+   r->dst->type = members->ptr->type;
+   return r;
 }
 
 char *arg(struct symbol *rtl)

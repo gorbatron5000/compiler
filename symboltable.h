@@ -10,8 +10,7 @@ struct type {
       struct type *type;
       struct symbol *udttype;
    };
-   int width;
-   int base;
+   int width, base, sz;
 };
 
 struct symbol {

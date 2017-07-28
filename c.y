@@ -128,14 +128,13 @@ vars:
    var ',' vars { add_symbol($1); $$ = $1; };
 
 var:
-   addresses IDENTIFIER arrays { 
-      printf("ident: %s type: %d\n", $2, $1->base);
-     $$ = symbol($2, join($3, $1)); };
+   addresses IDENTIFIER arrays { $$ = symbol($2, join($3, $1)); };
 
 addresses:
    { $$ = type(NULL, 1, identtype);
      if (identtype == STRUCT)
-        $$->width = udtentry->type->width; } |
+        $$->width = udtentry->type->width;
+   } |
    '*' addresses { $$ = type($2, 1, POINTER); } |
    '&' addresses { $$ = type($2, 1, ADDRESS); };
 

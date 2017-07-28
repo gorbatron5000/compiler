@@ -4,6 +4,7 @@ struct a {
 
 struct a z[100];
 struct a y[10][10];
+struct a x[1][2][3][4][5];
 
 int main()
 {
