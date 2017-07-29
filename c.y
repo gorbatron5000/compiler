@@ -27,7 +27,7 @@
             while_statement for_statement opt_expression function E
 %type <decl> declaration vars var param_list A B
 %type <type> arrays addresses storage_specifier enumerator typedefname
-%type <num> num type_specifier assign_oper
+%type <num> num type_specifier assign_oper prefix_op
 %type <jump> jump
 %type <str> IDENTIFIER NUMBER
 
@@ -197,12 +197,12 @@ while_statement:
 for_statement:
    FOR '(' opt_expression ';' lbl opt_expression ';' lbl
            opt_expression jump ')' lbl statement jump
-               {  make_jumps($6);
-                  backpatch($6->truelist, $12);
-                  backpatch($10, $5);
-                  backpatch($14, $8);
-                  $$ = makelist();
-                  $$->falselist = $6->falselist; };
+               { make_jumps($6);
+                 backpatch($6->truelist, $12);
+                 backpatch($10, $5);
+                 backpatch($14, $8);
+                 $$ = makelist();
+                 $$->falselist = $6->falselist; };
 
 opt_expression:
    {} |
@@ -247,9 +247,18 @@ multiplicative_expression:
                { $$ = binst($1, $3, '/'); };
 
 prefix_expression:
-   postfix_expression { } |
+   postfix_expression { $$ = $1; } |
+   prefix_op postfix_expression { binst($2, makeimmediate(1), INCR); } |
    INCR postfix_expression { binst($2, makeimmediate(1), INCR); } |
    DECR postfix_expression { binst($2, makeimmediate(1), DECR); };
+
+prefix_op:
+   '&' { $$ = '&'; } |
+   '|' { $$ = '|'; } |
+   '+' { $$ = '+'; } |
+   '-' { $$ = '-'; } |
+   '~' { $$ = '~'; } |
+   '!' { $$ = '!'; };
 
 postfix_expression:
    terminal { $$ = $1; } |

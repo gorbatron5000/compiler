@@ -9,7 +9,7 @@ char *token_strings[] = { "auto", "break", "case", "char", "const",
       "enum", "extern", "float", "for", "goto", "if", 
       "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&=", "^=", "|=",
       "<<", ">>", "++", "--", ">=", "<=", "==", "!=", "&&", "||",
-      "true", "false", "+", "-", "*", "/", "=", "!", "->" };
+      "true", "false", "+", "-", "*", "/", "=", "!", "->", "&", "|" };
 
 int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,
       CONTINUE, DEFAULT, DO, INT, LONG, REGISTER, RETURN,
@@ -18,7 +18,7 @@ int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,
       ENUM, EXTERN, FLOAT, FOR, GOTO, IF, 
       MULEQ, DIVEQ, MODEQ, ADDEQ, SUBEQ, LSHIFTEQ, RSHIFTEQ,
       ANDEQ, XOREQ, OREQ, LSHIFT, RSHIFT, INCR, DECR, GTEQ, LTEQ, EQ, NEQ,
-      LAND, LOR, TRUE, FALSE, '+', '-', '*', '/', '=', '!', DEREF};
+      LAND, LOR, TRUE, FALSE, '+', '-', '*', '/', '=', '!', DEREF, '&', '|' };
 
 int identtype, identwidth;
 
@@ -30,6 +30,7 @@ int strtotok(char *str)
          return token_vals[i];
    yylval.str = malloc(strlen(str)+1);
    strcpy(yylval.str, str);
+   printf("ident is %s\n",str);
    return IDENTIFIER;
 }
 
