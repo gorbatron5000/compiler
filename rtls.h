@@ -40,7 +40,7 @@ union semrec {
       struct list *lhs, *rhs;
    };
    struct {
-      struct symbol *src, *dst;
+      struct symbol *src;
       int oper;
    };
    struct symbol *entry;
@@ -67,8 +67,9 @@ extern struct symbol *udtentry;
 extern struct list *acc;
 extern int identtype;
 
-struct list *insert_rtl(struct list *rtl, union semrec *s, int type);
-struct list *new_rtl(union semrec *s, int type);
+struct list *insert_rtl(struct list *, struct symbol*,
+   union semrec *s, int type);
+struct list *new_rtl(struct symbol*, union semrec *, int);
 struct list *cvt(struct symbol *dst, struct type *type);
 struct list *makeparam(struct symbol *param);
 struct list *call(char *f);
@@ -77,6 +78,7 @@ struct list *func(struct symbol *fdecl, struct symbol *fparams,
    struct list *funcinit);
 struct list *empty();
 struct list *binst(struct list *lhs, struct list *rhs, int oper);
+struct list *unary(struct list*, int op);
 struct list *maketemporary(struct type *t);
 struct list *copy(struct list *dst, struct list *src);
 struct list *ret(struct list *ret);

@@ -30,7 +30,6 @@ int strtotok(char *str)
          return token_vals[i];
    yylval.str = malloc(strlen(str)+1);
    strcpy(yylval.str, str);
-   printf("ident is %s\n",str);
    return IDENTIFIER;
 }
 

@@ -1113,12 +1113,12 @@ case 88:
 break;
 case 89:
 #line 200 "c.y"
-	{  make_jumps(yystack.l_mark[-8].rtl);
-                  backpatch(yystack.l_mark[-8].rtl->truelist, yystack.l_mark[-2].rtl);
-                  backpatch(yystack.l_mark[-4].jump, yystack.l_mark[-9].rtl);
-                  backpatch(yystack.l_mark[0].jump, yystack.l_mark[-6].rtl);
-                  yyval.rtl = makelist();
-                  yyval.rtl->falselist = yystack.l_mark[-8].rtl->falselist; }
+	{ make_jumps(yystack.l_mark[-8].rtl);
+                 backpatch(yystack.l_mark[-8].rtl->truelist, yystack.l_mark[-2].rtl);
+                 backpatch(yystack.l_mark[-4].jump, yystack.l_mark[-9].rtl);
+                 backpatch(yystack.l_mark[0].jump, yystack.l_mark[-6].rtl);
+                 yyval.rtl = makelist();
+                 yyval.rtl->falselist = yystack.l_mark[-8].rtl->falselist; }
 break;
 case 90:
 #line 208 "c.y"
@@ -1190,7 +1190,7 @@ case 104:
 break;
 case 105:
 #line 251 "c.y"
-	{ binst(yystack.l_mark[0].rtl, makeimmediate(1), INCR); }
+	{ yyval.rtl = unary(yystack.l_mark[0].rtl, yystack.l_mark[-1].num); }
 break;
 case 106:
 #line 252 "c.y"

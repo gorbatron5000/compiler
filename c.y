@@ -248,7 +248,7 @@ multiplicative_expression:
 
 prefix_expression:
    postfix_expression { $$ = $1; } |
-   prefix_op postfix_expression { binst($2, makeimmediate(1), INCR); } |
+   prefix_op postfix_expression { $$ = unary($2, $1); } |
    INCR postfix_expression { binst($2, makeimmediate(1), INCR); } |
    DECR postfix_expression { binst($2, makeimmediate(1), DECR); };
 
