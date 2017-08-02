@@ -152,9 +152,12 @@ struct symbol *temp(struct type *t)
 {
    static int rnum;
    struct symbol *s = malloc(sizeof(struct symbol));
+   union semrec *srec = makesemrec();
    s->type = t;
    s->id = malloc(REGSTRING);
    sprintf(s->id, "t%d", rnum++);
+   srec->entry = s;
+   new_rtl(s, srec, TEMPORARY);
    return add_symbol(s);
 }
 

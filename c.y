@@ -2,6 +2,7 @@
 #include "scan.h"
 #include "symboltable.h"
 #include "rtls.h"
+#include "asm.h"
 %}
 
 %union {
@@ -34,7 +35,7 @@
 %%
 
 start:
-   { print_rtls(); } |
+   { print_rtls(); print_asm(); } |
    global_declaration start {};
 
 global_declaration:

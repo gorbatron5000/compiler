@@ -18,30 +18,6 @@ struct list *insert_rtl(struct list *ptr, struct symbol *dst,
    newrtl->type = type;
    newrtl->dst = dst;
 
-   if (newrtl->type == BINST)
-      newrtl->dst = temp(s->lhs->dst->type);
-   else if (newrtl->type == SYMBOL || newrtl->type == PARAM ||
-            newrtl->type == RETURN || newrtl->type == STRUCT ||
-            newrtl->type == ADDRESS)
-      newrtl->dst = s->entry;
-   else if (newrtl->type == ACC) {
-      newrtl->type = BINST;
-      newrtl->dst = s->lhs->dst;
-      newrtl->dst->type = s->lhs->dst->type;
-   }
-   else if (newrtl->type == TEMPORARY || newrtl->type == CVT)
-      newrtl->dst = temp(s->entry->type);
-   else if (newrtl->type == COPY) {
-      if (!s->lhs) {
-         newrtl->dst = temp(s->rhs->dst->type);
-         s->lhs = newrtl;
-      }
-      else
-         newrtl->dst = s->lhs->dst;
-   }
-   else if (newrtl->type == UNARY)
-      newrtl->dst = s->src;
-
    if (rtls) {
       newrtl->next = ptr->next;
       ptr->next = newrtl;
@@ -148,9 +124,8 @@ struct list *copy(struct list *dst, struct list *src)
 
 struct list *ret(struct list *ret)
 {
-   union semrec *s = makesemrec();
-   s->entry = ret ? ret->dst : NULL;
-   return new_rtl(NULL, s, RETURN);
+   return new_rtl(ret ? ret->dst : makeimmediate(0)->sptr->entry,
+                  NULL, RETURN);
 }
 
 struct list *makeimmediate(int d)
@@ -183,8 +158,8 @@ struct list *terminal(int type, char *str)
       s->entry = lookup(str);
    else if (type == NUMBER)
       return makeimmediate(atoi(str));
-   return new_rtl(s->entry, s, isaddr(s->entry->type->base) ? ADDRESS :
-                  s->entry->type->base == STRUCT ? STRUCT : SYMBOL);
+   return new_rtl(s->entry, s, /*isaddr(s->entry->type->base) ? ADDRESS :
+                  s->entry->type->base == STRUCT ? STRUCT : */SYMBOL);
 }
 
 struct list *accumulator(struct list *r1, struct list *r2, int op)
@@ -355,5 +330,7 @@ void print_rtls()
       else if (ptr->type == UNARY)
          printf("%s = %c%s\n", ptr->dst->id, ptr->sptr->oper,
                                ptr->sptr->src->id);
+      //else if (ptr->type == SYMBOL)
+      //   printf("%s = %s\n", ptr->dst->id, ptr->sptr->entry->id);
    }
 }
