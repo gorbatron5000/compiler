@@ -4,9 +4,12 @@
 #include "string.h"
 #include "symboltable.h"
 
+#define LOCAL     (1 << 5)
+#define IMMEDIATE (1 << 6)
 #define POINTER   (1 << 7)
 #define ARRAY     (1 << 8)
-#define FUNC      (1 << 10)
+#define EXITFUNC  (1 << 9)
+#define ENTERFUNC (1 << 10)
 #define SYMBOL    (1 << 11)
 #define JUMP      (1 << 12)
 #define LABEL     (1 << 13)

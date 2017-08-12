@@ -1,0 +1,525 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ACC	rtls.h	21;"	d
+ACC	scan.h	22;"	d
+ACC	scan.h	27;"	d
+ADDEQ	y.tab.c	103;"	d	file:
+ADDEQ	y.tab.h	30;"	d
+ADDRESS	scan.h	12;"	d
+ANDEQ	y.tab.c	107;"	d	file:
+ANDEQ	y.tab.h	34;"	d
+ARRAY	rtls.h	10;"	d
+ARRAY	scan.h	14;"	d
+ASM	rtls.h	19;"	d
+ASM_H	asm.h	2;"	d
+AUTO	y.tab.c	74;"	d	file:
+AUTO	y.tab.h	1;"	d
+BINST	rtls.h	16;"	d
+BREAK	y.tab.c	75;"	d	file:
+BREAK	y.tab.h	2;"	d
+CALL	rtls.h	24;"	d
+CALL	scan.h	20;"	d
+CALL	scan.h	25;"	d
+CASE	y.tab.c	76;"	d	file:
+CASE	y.tab.h	3;"	d
+CFILES	Makefile	/^CFILES=symboltable.c rtls.c y.tab.c scan.c asm.c$/;"	m
+CHAR	y.tab.c	127;"	d	file:
+CHAR	y.tab.h	54;"	d
+CONST	y.tab.c	77;"	d	file:
+CONST	y.tab.h	4;"	d
+CONTINUE	y.tab.c	78;"	d	file:
+CONTINUE	y.tab.h	5;"	d
+COPY	rtls.h	18;"	d
+CVT	rtls.h	25;"	d
+CVT	scan.h	21;"	d
+DECLTYPES	symboltable.c	8;"	d	file:
+DECR	y.tab.c	113;"	d	file:
+DECR	y.tab.h	40;"	d
+DEFAULT	y.tab.c	79;"	d	file:
+DEFAULT	y.tab.h	6;"	d
+DEREF	y.tab.c	97;"	d	file:
+DEREF	y.tab.h	24;"	d
+DIVEQ	y.tab.c	101;"	d	file:
+DIVEQ	y.tab.h	28;"	d
+DO	y.tab.c	80;"	d	file:
+DO	y.tab.h	7;"	d
+DOUBLE	y.tab.c	130;"	d	file:
+DOUBLE	y.tab.h	57;"	d
+ELSE	y.tab.c	93;"	d	file:
+ELSE	y.tab.h	20;"	d
+EMPTY	rtls.h	22;"	d
+EMPTY	scan.h	18;"	d
+EMPTY	scan.h	23;"	d
+EMPTY	scan.h	28;"	d
+ENUM	y.tab.c	94;"	d	file:
+ENUM	y.tab.h	21;"	d
+ENUMERATOR	y.tab.c	132;"	d	file:
+ENUMERATOR	y.tab.h	59;"	d
+EQ	y.tab.c	116;"	d	file:
+EQ	y.tab.h	43;"	d
+EXTERN	y.tab.c	95;"	d	file:
+EXTERN	y.tab.h	22;"	d
+FALSE	y.tab.c	121;"	d	file:
+FALSE	y.tab.h	48;"	d
+FLOAT	y.tab.c	126;"	d	file:
+FLOAT	y.tab.h	53;"	d
+FOR	y.tab.c	96;"	d	file:
+FOR	y.tab.h	23;"	d
+FREE	asm.h	7;"	d
+FUNC	rtls.h	11;"	d
+FUNC	scan.h	15;"	d
+GOTO	y.tab.c	98;"	d	file:
+GOTO	y.tab.h	25;"	d
+GTEQ	y.tab.c	114;"	d	file:
+GTEQ	y.tab.h	41;"	d
+HEADERS	Makefile	/^HEADERS=symboltable.h rtls.h y.tab.h scan.h asm.h$/;"	m
+IDENTIFIER	y.tab.c	123;"	d	file:
+IDENTIFIER	y.tab.h	50;"	d
+IF	y.tab.c	99;"	d	file:
+IF	y.tab.h	26;"	d
+IMMEDIATE	rtls.h	8;"	d
+INCR	y.tab.c	112;"	d	file:
+INCR	y.tab.h	39;"	d
+INT	y.tab.c	125;"	d	file:
+INT	y.tab.h	52;"	d
+JUMP	rtls.h	13;"	d
+JUMP	scan.h	17;"	d
+LABEL	rtls.h	14;"	d
+LAND	y.tab.c	118;"	d	file:
+LAND	y.tab.h	45;"	d
+LOAD	scan.h	11;"	d
+LOCAL	rtls.h	7;"	d
+LONG	y.tab.c	129;"	d	file:
+LONG	y.tab.h	56;"	d
+LONGLONG	rtls.h	20;"	d
+LONGLONG	scan.h	26;"	d
+LOR	y.tab.c	119;"	d	file:
+LOR	y.tab.h	46;"	d
+LSHIFT	y.tab.c	110;"	d	file:
+LSHIFT	y.tab.h	37;"	d
+LSHIFTEQ	y.tab.c	105;"	d	file:
+LSHIFTEQ	y.tab.h	32;"	d
+LTEQ	y.tab.c	115;"	d	file:
+LTEQ	y.tab.h	42;"	d
+MAXLBL	rtls.h	28;"	d
+MAXOP	asm.h	8;"	d
+MAXRTL	rtls.h	27;"	d
+MAXSTR	scan.h	9;"	d
+MODEQ	y.tab.c	102;"	d	file:
+MODEQ	y.tab.h	29;"	d
+MULEQ	y.tab.c	100;"	d	file:
+MULEQ	y.tab.h	27;"	d
+NEQ	y.tab.c	117;"	d	file:
+NEQ	y.tab.h	44;"	d
+NOT	y.tab.c	124;"	d	file:
+NOT	y.tab.h	51;"	d
+NUMBER	y.tab.c	122;"	d	file:
+NUMBER	y.tab.h	49;"	d
+NUMOPS	asm.h	9;"	d
+NUMREGS	asm.h	4;"	d
+NUMRELOPS	symboltable.c	7;"	d	file:
+OREQ	y.tab.c	109;"	d	file:
+OREQ	y.tab.h	36;"	d
+PARAM	rtls.h	23;"	d
+PARAM	scan.h	19;"	d
+PARAM	scan.h	24;"	d
+PARAM	scan.h	29;"	d
+POINTER	rtls.h	9;"	d
+POINTER	scan.h	13;"	d
+REGISTER	y.tab.c	81;"	d	file:
+REGISTER	y.tab.h	8;"	d
+REGSTRING	symboltable.c	6;"	d	file:
+RETURN	y.tab.c	82;"	d	file:
+RETURN	y.tab.h	9;"	d
+RSHIFT	y.tab.c	111;"	d	file:
+RSHIFT	y.tab.h	38;"	d
+RSHIFTEQ	y.tab.c	106;"	d	file:
+RSHIFTEQ	y.tab.h	33;"	d
+RTLS_H	rtls.h	2;"	d
+SCAN_H	scan.h	2;"	d
+SHORT	y.tab.c	128;"	d	file:
+SHORT	y.tab.h	55;"	d
+SIGNED	y.tab.c	83;"	d	file:
+SIGNED	y.tab.h	10;"	d
+SIZEOF	y.tab.c	84;"	d	file:
+SIZEOF	y.tab.h	11;"	d
+SPREG	asm.h	5;"	d
+STATIC	y.tab.c	85;"	d	file:
+STATIC	y.tab.h	12;"	d
+STRUCT	y.tab.c	86;"	d	file:
+STRUCT	y.tab.h	13;"	d
+SUBEQ	y.tab.c	104;"	d	file:
+SUBEQ	y.tab.h	31;"	d
+SWITCH	y.tab.c	87;"	d	file:
+SWITCH	y.tab.h	14;"	d
+SYMBOL	rtls.h	12;"	d
+SYMBOL	scan.h	16;"	d
+SYMBOLTABLE_H	symboltable.h	2;"	d
+TAKEN	asm.h	6;"	d
+TEMPORARY	rtls.h	15;"	d
+TOKENS	scan.h	8;"	d
+TRUE	y.tab.c	120;"	d	file:
+TRUE	y.tab.h	47;"	d
+TYPEDEF	y.tab.c	88;"	d	file:
+TYPEDEF	y.tab.h	15;"	d
+UNARY	rtls.h	17;"	d
+UNION	y.tab.c	89;"	d	file:
+UNION	y.tab.h	16;"	d
+UNSIGNED	y.tab.c	131;"	d	file:
+UNSIGNED	y.tab.h	58;"	d
+VOID	y.tab.c	90;"	d	file:
+VOID	y.tab.h	17;"	d
+VOLATILE	y.tab.c	91;"	d	file:
+VOLATILE	y.tab.h	18;"	d
+WHILE	y.tab.c	92;"	d	file:
+WHILE	y.tab.h	19;"	d
+XOREQ	y.tab.c	108;"	d	file:
+XOREQ	y.tab.h	35;"	d
+YYABORT	y.tab.c	608;"	d	file:
+YYACCEPT	y.tab.c	610;"	d	file:
+YYBYACC	y.tab.c	5;"	d	file:
+YYDEBUG	y.tab.c	356;"	d	file:
+YYEMPTY	y.tab.c	10;"	d	file:
+YYENOMEM	y.tab.c	14;"	d	file:
+YYEOF	y.tab.c	15;"	d	file:
+YYERRCODE	y.tab.c	133;"	d	file:
+YYERROR	y.tab.c	611;"	d	file:
+YYERROR_CALL	y.tab.c	69;"	d	file:
+YYERROR_DECL	y.tab.c	66;"	d	file:
+YYFINAL	y.tab.c	354;"	d	file:
+YYINITSTACKSIZE	y.tab.c	532;"	d	file:
+YYINT	y.tab.c	/^typedef short YYINT;$/;"	t	file:
+YYLEX	y.tab.c	58;"	d	file:
+YYLEX	y.tab.c	61;"	d	file:
+YYLEX_DECL	y.tab.c	57;"	d	file:
+YYLEX_DECL	y.tab.c	60;"	d	file:
+YYMAJOR	y.tab.c	6;"	d	file:
+YYMAXDEPTH	y.tab.c	521;"	d	file:
+YYMAXDEPTH	y.tab.c	522;"	d	file:
+YYMAXDEPTH	y.tab.c	528;"	d	file:
+YYMAXTOKEN	y.tab.c	358;"	d	file:
+YYMINOR	y.tab.c	7;"	d	file:
+YYPARSE_DECL	y.tab.c	/^YYPARSE_DECL()$/;"	f
+YYPARSE_DECL	y.tab.c	47;"	d	file:
+YYPARSE_DECL	y.tab.c	49;"	d	file:
+YYPARSE_DECL	y.tab.c	52;"	d	file:
+YYPATCH	y.tab.c	8;"	d	file:
+YYPREFIX	y.tab.c	16;"	d	file:
+YYPURE	y.tab.c	18;"	d	file:
+YYRECOVERING	y.tab.c	13;"	d	file:
+YYREJECT	y.tab.c	609;"	d	file:
+YYSTACKDATA	y.tab.c	/^} YYSTACKDATA;$/;"	t	typeref:struct:__anon8	file:
+YYSTACKSIZE	y.tab.c	525;"	d	file:
+YYSTACKSIZE	y.tab.c	527;"	d	file:
+YYSTYPE	y.tab.c	/^} YYSTYPE;$/;"	t	typeref:union:__anon7	file:
+YYSTYPE	y.tab.h	/^} YYSTYPE;$/;"	t	typeref:union:__anon9
+YYSTYPE_IS_DECLARED	y.tab.c	27;"	d	file:
+YYSTYPE_IS_DECLARED	y.tab.c	28;"	d	file:
+YYSTYPE_IS_DECLARED	y.tab.c	31;"	d	file:
+YYSTYPE_IS_DECLARED	y.tab.h	61;"	d
+YYSTYPE_IS_DECLARED	y.tab.h	62;"	d
+YYSTYPE_IS_DECLARED	y.tab.h	65;"	d
+YYTABLESIZE	y.tab.c	245;"	d	file:
+YYTRANSLATE	y.tab.c	360;"	d	file:
+YYUNDFTOKEN	y.tab.c	359;"	d	file:
+a	tests/test11.c	/^int a, b[1][2][3][4], i;$/;"	v
+a	tests/test15.c	/^struct a {$/;"	s	file:
+a	tests/test16.c	/^struct a {$/;"	s	file:
+a	tests/test2.c	/^int a,b,c,d;$/;"	v
+a	tests/test3.c	/^int a,b,c,d,e;$/;"	v
+a	tests/test4.c	/^int a,b,c;$/;"	v
+a	tests/test6.c	/^int a, b, c, d, e, f, g;$/;"	v
+a	tests/test7.c	/^int a,b,c,d,e;$/;"	v
+a	tests/test8.c	/^int a,b,c,d;$/;"	v
+a	tests/test9.c	/^int a,b,c,d,e,f;$/;"	v
+access_member	rtls.c	/^struct list *access_member(struct list *b, char *member)$/;"	f
+accumulator	rtls.c	/^struct list *accumulator(struct list *r1, struct list *r2, int op)$/;"	f
+add_member	symboltable.c	/^void add_member(struct symbol *member)$/;"	f
+add_symbol	symboltable.c	/^struct symbol *add_symbol(struct symbol *s)$/;"	f
+add_udt	symboltable.c	/^struct symbol *add_udt(struct symbol *ent)$/;"	f
+add_user_defined_type	symboltable.c	/^struct symbol *add_user_defined_type(char *name)$/;"	f
+additive_expression	c.y	/^additive_expression:$/;"	l
+addresses	c.y	/^addresses:$/;"	l
+arg	rtls.c	/^char *arg(struct symbol *rtl)$/;"	f
+arrayref	rtls.c	/^struct list *arrayref(struct list *base, struct list *offset)$/;"	f
+arrays	c.y	/^arrays:$/;"	l
+assign_oper	c.y	/^assign_oper:$/;"	l
+assign_registers	asm.c	/^void assign_registers()$/;"	f
+assignment	c.y	/^assignment:$/;"	l
+b	tests/test11.c	/^int a, b[1][2][3][4], i;$/;"	v
+b	tests/test15.c	/^   int q,r,s,b,t,u,v;$/;"	m	struct:a	file:
+b	tests/test16.c	/^   int b,c,d,e,f,g[10];$/;"	m	struct:a	file:
+b	tests/test2.c	/^int a,b,c,d;$/;"	v
+b	tests/test3.c	/^int a,b,c,d,e;$/;"	v
+b	tests/test4.c	/^int a,b,c;$/;"	v
+b	tests/test6.c	/^int a, b, c, d, e, f, g;$/;"	v
+b	tests/test7.c	/^int a,b,c,d,e;$/;"	v
+b	tests/test8.c	/^int a,b,c,d;$/;"	v
+b	tests/test9.c	/^int a,b,c,d,e,f;$/;"	v
+backpatch	rtls.c	/^void backpatch(struct jumplist *jmps, struct list *lbl)$/;"	f
+base	symboltable.h	/^   int width, base, sz;$/;"	m	struct:type
+binaryop	asm.c	/^int binaryop(int r1, int r2, int op)$/;"	f
+binst	rtls.c	/^struct list *binst(struct list *lhs, struct list *rhs, int oper)$/;"	f
+c	tests/test15.c	/^struct c {$/;"	s	file:
+c	tests/test16.c	/^   int b,c,d,e,f,g[10];$/;"	m	struct:a	file:
+c	tests/test2.c	/^int a,b,c,d;$/;"	v
+c	tests/test3.c	/^int a,b,c,d,e;$/;"	v
+c	tests/test4.c	/^int a,b,c;$/;"	v
+c	tests/test6.c	/^int a, b, c, d, e, f, g;$/;"	v
+c	tests/test7.c	/^int a,b,c,d,e;$/;"	v
+c	tests/test8.c	/^int a,b,c,d;$/;"	v
+c	tests/test9.c	/^int a,b,c,d,e,f;$/;"	v
+call	c.y	/^call:$/;"	l
+call	rtls.c	/^struct list *call(char *f)$/;"	f
+call_list	c.y	/^call_list:$/;"	l
+calledfunc	symboltable.c	/^struct symbol *currfunc, *calledfunc, *currstruct, **udttable;$/;"	v	typeref:struct:
+comparetypes	symboltable.c	/^int comparetypes(struct type *t1, struct type *t2)$/;"	f
+compoundtype	c.y	/^compoundtype:$/;"	l
+copy	rtls.c	/^struct list *copy(struct list *dst, struct list *src)$/;"	f
+currfunc	symboltable.c	/^struct symbol *currfunc, *calledfunc, *currstruct, **udttable;$/;"	v	typeref:struct:symbol
+currstruct	symboltable.c	/^struct symbol *currfunc, *calledfunc, *currstruct, **udttable;$/;"	v	typeref:struct:
+cvt	rtls.c	/^struct list *cvt(struct symbol *dst, struct type *type)$/;"	f
+d	tests/test10.c	/^int d, e, f;$/;"	v
+d	tests/test13.c	/^int d, e;$/;"	v
+d	tests/test15.c	/^   struct a d;$/;"	m	struct:c	typeref:struct:c::a	file:
+d	tests/test16.c	/^   int b,c,d,e,f,g[10];$/;"	m	struct:a	file:
+d	tests/test2.c	/^int a,b,c,d;$/;"	v
+d	tests/test3.c	/^int a,b,c,d,e;$/;"	v
+d	tests/test6.c	/^int a, b, c, d, e, f, g;$/;"	v
+d	tests/test7.c	/^int a,b,c,d,e;$/;"	v
+d	tests/test8.c	/^int a,b,c,d;$/;"	v
+d	tests/test9.c	/^int a,b,c,d,e,f;$/;"	v
+decl	y.tab.c	/^   struct symbol *decl;$/;"	m	union:__anon7	typeref:struct:__anon7::symbol	file:
+decl	y.tab.h	/^   struct symbol *decl;$/;"	m	union:__anon9	typeref:struct:__anon9::symbol
+declaration	c.y	/^declaration:$/;"	l
+decrease_scope	symboltable.c	/^void decrease_scope()$/;"	f
+dst	rtls.h	/^   struct symbol *dst;$/;"	m	struct:list	typeref:struct:list::symbol
+e	tests/test10.c	/^int d, e, f;$/;"	v
+e	tests/test13.c	/^int d, e;$/;"	v
+e	tests/test16.c	/^   int b,c,d,e,f,g[10];$/;"	m	struct:a	file:
+e	tests/test3.c	/^int a,b,c,d,e;$/;"	v
+e	tests/test6.c	/^int a, b, c, d, e, f, g;$/;"	v
+e	tests/test7.c	/^int a,b,c,d,e;$/;"	v
+e	tests/test9.c	/^int a,b,c,d,e,f;$/;"	v
+emit_params	rtls.c	/^void emit_params(struct symbol *func)$/;"	f
+empty	rtls.c	/^struct list *empty()$/;"	f
+entry	rtls.h	/^   struct symbol *entry;$/;"	m	union:semrec	typeref:struct:semrec::symbol
+enumerator	c.y	/^enumerator:$/;"	l
+expression	c.y	/^expression:$/;"	l
+f	tests/test10.c	/^int d, e, f;$/;"	v
+f	tests/test16.c	/^   int b,c,d,e,f,g[10];$/;"	m	struct:a	file:
+f	tests/test6.c	/^int a, b, c, d, e, f, g;$/;"	v
+f	tests/test9.c	/^int a,b,c,d,e,f;$/;"	v
+falselist	rtls.h	/^   struct jumplist *truelist, *falselist;$/;"	m	struct:list	typeref:struct:list::
+fixentry	asm.c	/^void fixentry()$/;"	f
+foo	tests/test10.c	/^int foo()$/;"	f
+foo	tests/test13.c	/^int foo(int a, int b)$/;"	f
+foo	tests/test14.c	/^int foo(int *a, int *b)$/;"	f
+for_statement	c.y	/^for_statement:$/;"	l
+func	rtls.c	/^struct list *func(struct symbol *fdecl, struct symbol *fparams,$/;"	f
+function	c.y	/^function:$/;"	l
+g	tests/test16.c	/^   int b,c,d,e,f,g[10];$/;"	m	struct:a	file:
+g	tests/test6.c	/^int a, b, c, d, e, f, g;$/;"	v
+get_stack_offset	asm.c	/^int get_stack_offset(struct symbol *entry)$/;"	f
+get_udt	symboltable.c	/^struct symbol *get_udt(char *udt)$/;"	f
+global_declaration	c.y	/^global_declaration:$/;"	l
+gtlabel	rtls.c	/^struct list *gtlabel()$/;"	f
+gtrg	asm.c	/^int gtrg(int scratch)$/;"	f
+i	tests/test11.c	/^int a, b[1][2][3][4], i;$/;"	v
+id	symboltable.h	/^   char *id;$/;"	m	struct:symbol
+identtype	rtls.c	/^int identtype;$/;"	v
+identtype	scan.c	/^int identtype, identwidth;$/;"	v
+identwidth	scan.c	/^int identtype, identwidth;$/;"	v
+if_statement	c.y	/^if_statement:$/;"	l
+increase_scope	symboltable.c	/^void increase_scope()$/;"	f
+insert_param	symboltable.c	/^void insert_param(struct symbol *s)$/;"	f
+insert_rtl	rtls.c	/^struct list *insert_rtl(struct list *ptr, struct symbol *dst, $/;"	f
+isaddr	rtls.h	30;"	d
+join	symboltable.c	/^struct type *join(struct type *t1, struct type *t2)$/;"	f
+jump	c.y	/^jump:$/;"	l
+jump	rtls.c	/^struct jumplist *jump()$/;"	f
+jump	y.tab.c	/^   struct jumplist *jump;$/;"	m	union:__anon7	typeref:struct:__anon7::jumplist	file:
+jump	y.tab.h	/^   struct jumplist *jump;$/;"	m	union:__anon9	typeref:struct:__anon9::jumplist
+jumplist	rtls.h	/^struct jumplist {$/;"	s
+l	tests/test15.c	/^   int l;$/;"	m	struct:c	file:
+l_base	y.tab.c	/^    YYSTYPE  *l_base;$/;"	m	struct:__anon8	file:
+l_mark	y.tab.c	/^    YYSTYPE  *l_mark;$/;"	m	struct:__anon8	file:
+label	rtls.h	/^   char label[MAXLBL];$/;"	m	union:semrec
+lbl	c.y	/^lbl:$/;"	l
+lhs	rtls.h	/^      struct list *lhs, *rhs;$/;"	m	struct:semrec::__anon3	typeref:struct:semrec::__anon3::list
+list	rtls.h	/^struct list {$/;"	s
+load	asm.c	/^int load(struct symbol *ent)$/;"	f
+logical_and	c.y	/^logical_and:$/;"	l
+logical_or	c.y	/^logical_or:$/;"	l
+lookup	symboltable.c	/^struct symbol *lookup(char *id)$/;"	f
+main	test.c	/^int main()$/;"	f
+main	tests/test1.c	/^int main()$/;"	f
+main	tests/test11.c	/^int main() {$/;"	f
+main	tests/test12.c	/^int main()$/;"	f
+main	tests/test13.c	/^int main()$/;"	f
+main	tests/test15.c	/^int main()$/;"	f
+main	tests/test16.c	/^int main()$/;"	f
+main	tests/test17.c	/^int main()$/;"	f
+main	tests/test2.c	/^int main() {$/;"	f
+main	tests/test3.c	/^int main() {$/;"	f
+main	tests/test4.c	/^int main() {$/;"	f
+main	tests/test5.c	/^int main() {$/;"	f
+main	tests/test6.c	/^int main() {$/;"	f
+main	tests/test7.c	/^int main() {$/;"	f
+main	tests/test8.c	/^int main() {$/;"	f
+main	tests/test9.c	/^int main()$/;"	f
+main	y.tab.c	/^int main() {$/;"	f
+make_jump	rtls.c	/^struct jumplist *make_jump(struct list *rtl, struct jumplist **jlist,$/;"	f
+make_jumps	rtls.c	/^void make_jumps(struct list *rtl)$/;"	f
+makeimmediate	rtls.c	/^struct list *makeimmediate(int d)$/;"	f
+makejumplist	rtls.h	32;"	d
+makelist	rtls.h	33;"	d
+makeparam	rtls.c	/^struct list *makeparam(struct symbol *param)$/;"	f
+makesemrec	rtls.h	34;"	d
+maketemporary	rtls.c	/^struct list *maketemporary(struct type *t)$/;"	f
+maketype	symboltable.h	6;"	d
+members	symboltable.h	/^      struct symbollist *members;$/;"	m	union:symbol::__anon6	typeref:struct:symbol::__anon6::symbollist
+merge	rtls.c	/^struct jumplist *merge(struct jumplist *l1, struct jumplist *l2)$/;"	f
+multiplicative_expression	c.y	/^multiplicative_expression:$/;"	l
+new_rtl	rtls.c	/^struct list *new_rtl(struct symbol *dst, union semrec *s, int type)$/;"	f
+next	rtls.h	/^   struct jumplist *next;$/;"	m	struct:jumplist	typeref:struct:jumplist::jumplist
+next	rtls.h	/^   struct list *next;$/;"	m	struct:list	typeref:struct:list::list
+next	symboltable.h	/^   struct symbollist *next;$/;"	m	struct:symbollist	typeref:struct:symbollist::symbollist
+num	c.y	/^num:$/;"	l
+num	y.tab.c	/^   int num;$/;"	m	union:__anon7	file:
+num	y.tab.h	/^   int num;$/;"	m	union:__anon9
+numparams	rtls.c	/^int numparams(struct symbol *func)$/;"	f
+offset	asm.h	/^   int offset;$/;"	m	struct:__anon1
+op	asm.h	/^struct op {$/;"	s
+op	rtls.h	/^      int op;$/;"	m	struct:semrec::__anon3
+oper	rtls.h	/^      int oper;$/;"	m	struct:semrec::__anon4
+opers	asm.c	/^struct op opers[] = { {'+', "add"}, {'-', "sub"}, {'*', "mul"}, {'\/', "div"}, {'=', "mov" } };$/;"	v	typeref:struct:op
+opt_expression	c.y	/^opt_expression:$/;"	l
+optostr	asm.c	/^char *optostr(int op)$/;"	f
+optype	rtls.h	31;"	d
+param	rtls.c	/^void param(struct symbol *p)$/;"	f
+param_list	c.y	/^param_list:$/;"	l
+parameter	symboltable.c	/^int udtmax, udts, parameter, structsize;$/;"	v
+params	symboltable.h	/^      struct symbollist *params;$/;"	m	union:symbol::__anon6	typeref:struct:symbol::__anon6::symbollist
+peek	scan.c	/^int peek(int d)$/;"	f
+postfix	rtls.c	/^struct list *postfix(struct list *rtl, int oper)$/;"	f
+postfix_expression	c.y	/^postfix_expression:$/;"	l
+prefix_expression	c.y	/^prefix_expression:$/;"	l
+prefix_op	c.y	/^prefix_op:$/;"	l
+prev	symboltable.h	/^   struct symboltable *prev;$/;"	m	struct:symboltable	typeref:struct:symboltable::symboltable
+print_asm	asm.c	/^void print_asm()$/;"	f
+print_decls	symboltable.c	/^void print_decls()$/;"	f
+print_rtls	rtls.c	/^void print_rtls()$/;"	f
+ptr	rtls.h	/^   struct list *ptr;$/;"	m	struct:jumplist	typeref:struct:jumplist::list
+ptr	symboltable.h	/^   struct symbol *ptr;$/;"	m	struct:symbollist	typeref:struct:symbollist::symbol
+q	tests/test15.c	/^   int q,r,s,b,t,u,v;$/;"	m	struct:a	file:
+r	tests/test15.c	/^   int q,r,s,b,t,u,v;$/;"	m	struct:a	file:
+regs	asm.c	/^int regs[NUMREGS];$/;"	v
+releasereg	asm.c	/^void releasereg(int rgnum)$/;"	f
+ret	rtls.c	/^struct list *ret(struct list *ret)$/;"	f
+return	c.y	/^return:$/;"	l
+rhs	rtls.h	/^      struct list *lhs, *rhs;$/;"	m	struct:semrec::__anon3	typeref:struct:semrec::__anon3::
+rtl	y.tab.c	/^   struct list *rtl;$/;"	m	union:__anon7	typeref:struct:__anon7::list	file:
+rtl	y.tab.h	/^   struct list *rtl;$/;"	m	union:__anon9	typeref:struct:__anon9::list
+rtlend	rtls.c	/^struct list *rtls, *rtlend;$/;"	v	typeref:struct:
+rtls	rtls.c	/^struct list *rtls, *rtlend;$/;"	v	typeref:struct:list
+s	tests/test15.c	/^   int q,r,s,b,t,u,v;$/;"	m	struct:a	file:
+s_base	y.tab.c	/^    YYINT    *s_base;$/;"	m	struct:__anon8	file:
+s_last	y.tab.c	/^    YYINT    *s_last;$/;"	m	struct:__anon8	file:
+s_mark	y.tab.c	/^    YYINT    *s_mark;$/;"	m	struct:__anon8	file:
+semrec	rtls.h	/^union semrec {$/;"	u
+show_members	symboltable.c	/^void show_members(struct symbol *udt)$/;"	f
+show_symbols	symboltable.c	/^void show_symbols(struct symbollist *f)$/;"	f
+slist	symboltable.h	/^   struct symbollist *slist;$/;"	m	struct:symboltable	typeref:struct:symboltable::symbollist
+sptr	rtls.h	/^   union semrec *sptr;$/;"	m	struct:list	typeref:union:list::semrec
+src	rtls.h	/^      struct symbol *src;$/;"	m	struct:semrec::__anon4	typeref:struct:semrec::__anon4::symbol
+stack	asm.h	/^} stack[100];$/;"	v	typeref:struct:__anon1
+stacksize	y.tab.c	/^    unsigned stacksize;$/;"	m	struct:__anon8	file:
+stacktop	asm.c	/^int stacktop;$/;"	v
+start	c.y	/^start:$/;"	l
+statement	c.y	/^statement:$/;"	l
+statements	c.y	/^statements:$/;"	l
+storage	symboltable.h	/^   int storage;$/;"	m	struct:symbol
+storage_specifier	c.y	/^storage_specifier:$/;"	l
+store	asm.c	/^void store(struct symbol *dst, int r1)$/;"	f
+str	asm.h	/^   char str[MAXOP];$/;"	m	struct:op
+str	y.tab.c	/^   char *str;$/;"	m	union:__anon7	file:
+str	y.tab.h	/^   char *str;$/;"	m	union:__anon9
+strtotok	scan.c	/^int strtotok(char *str)$/;"	f
+struct_declaration	c.y	/^struct_declaration:$/;"	l
+struct_declarations	c.y	/^struct_declarations:$/;"	l
+struct_member	c.y	/^struct_member:$/;"	l
+struct_or_union	c.y	/^struct_or_union:$/;"	l
+structsize	symboltable.c	/^int udtmax, udts, parameter, structsize;$/;"	v
+symbol	asm.h	/^   char *symbol;$/;"	m	struct:__anon1
+symbol	symboltable.c	/^struct symbol *symbol(char *ident, struct type *t)$/;"	f
+symbol	symboltable.h	/^struct symbol {$/;"	s
+symbollist	symboltable.h	/^struct symbollist {$/;"	s
+symboltable	symboltable.h	/^struct symboltable {$/;"	s
+symtbltop	symboltable.c	/^struct symboltable *symtbltop;$/;"	v	typeref:struct:symboltable
+sz	symboltable.h	/^   int width, base, sz;$/;"	m	struct:type
+t	tests/test15.c	/^   int q,r,s,b,t,u,v;$/;"	m	struct:a	file:
+target	rtls.h	/^      struct list *target, *test;$/;"	m	struct:semrec::__anon2	typeref:struct:semrec::__anon2::list
+temp	symboltable.c	/^struct symbol *temp(struct type *t)$/;"	f
+terminal	c.y	/^terminal:$/;"	l
+terminal	rtls.c	/^struct list *terminal(int type, char *str)$/;"	f
+test	rtls.h	/^      struct list *target, *test;$/;"	m	struct:semrec::__anon2	typeref:struct:semrec::__anon2::
+token_strings	scan.c	/^char *token_strings[] = { "auto", "break", "case", "char", "const",$/;"	v
+token_vals	scan.c	/^int token_vals[] = { AUTO, BREAK, CASE, CHAR, CONST,$/;"	v
+toktostr	scan.c	/^char *toktostr(int tok)$/;"	f
+truelist	rtls.h	/^   struct jumplist *truelist, *falselist;$/;"	m	struct:list	typeref:struct:list::jumplist
+type	rtls.h	/^   int type;$/;"	m	struct:list
+type	symboltable.c	/^struct type *type(struct type *t, int sz, int base)$/;"	f
+type	symboltable.h	/^      struct type *type;$/;"	m	union:type::__anon5	typeref:struct:type::__anon5::type
+type	symboltable.h	/^   struct type *type;$/;"	m	struct:symbol	typeref:struct:symbol::type
+type	symboltable.h	/^struct type {$/;"	s
+type	y.tab.c	/^   struct type *type;$/;"	m	union:__anon7	typeref:struct:__anon7::type	file:
+type	y.tab.h	/^   struct type *type;$/;"	m	union:__anon9	typeref:struct:__anon9::type
+type_specifier	c.y	/^type_specifier:$/;"	l
+typedefname	c.y	/^typedefname:$/;"	l
+u	tests/test15.c	/^   int q,r,s,b,t,u,v;$/;"	m	struct:a	file:
+udtentry	rtls.c	/^struct symbol *udtentry;$/;"	v	typeref:struct:symbol
+udtmax	symboltable.c	/^int udtmax, udts, parameter, structsize;$/;"	v
+udts	symboltable.c	/^int udtmax, udts, parameter, structsize;$/;"	v
+udttable	symboltable.c	/^struct symbol *currfunc, *calledfunc, *currstruct, **udttable;$/;"	v	typeref:struct:
+udttype	symboltable.h	/^      struct symbol *udttype;$/;"	m	union:type::__anon5	typeref:struct:type::__anon5::symbol
+unary	rtls.c	/^struct list *unary(struct list *rtl, int op)$/;"	f
+v	tests/test15.c	/^   int q,r,s,b,t,u,v;$/;"	m	struct:a	file:
+val	asm.h	/^   int val;$/;"	m	struct:op
+var	c.y	/^var:$/;"	l
+vars	c.y	/^vars:$/;"	l
+while_statement	c.y	/^while_statement:$/;"	l
+width	symboltable.h	/^   int width, base, sz;$/;"	m	struct:type
+widthof	symboltable.c	/^int widthof(int token)$/;"	f
+x	tests/test16.c	/^struct a x[1][2][3][4][5];$/;"	v	typeref:struct:a
+y	tests/test16.c	/^struct a y[10][10];$/;"	v	typeref:struct:a
+yychar	y.tab.c	/^int      yychar;$/;"	v
+yycheck	y.tab.c	/^static const YYINT yycheck[] = {                         33,$/;"	v	file:
+yyclearin	y.tab.c	11;"	d	file:
+yydebug	y.tab.c	/^int      yydebug;$/;"	v
+yydefred	y.tab.c	/^static const YYINT yydefred[] = {                         0,$/;"	v	file:
+yydgoto	y.tab.c	/^static const YYINT yydgoto[] = {                         14,$/;"	v	file:
+yyerrflag	y.tab.c	/^int      yyerrflag;$/;"	v
+yyerrok	y.tab.c	12;"	d	file:
+yyerror	y.tab.c	/^int yyerror(const char *d) {$/;"	f
+yyfreestack	y.tab.c	/^static void yyfreestack(YYSTACKDATA *data)$/;"	f	file:
+yyfreestack	y.tab.c	605;"	d	file:
+yygindex	y.tab.c	/^static const YYINT yygindex[] = {                       215,$/;"	v	file:
+yygrowstack	y.tab.c	/^static int yygrowstack(YYSTACKDATA *data)$/;"	f	file:
+yylen	y.tab.c	/^static const YYINT yylen[] = {                            2,$/;"	v	file:
+yylex	scan.c	/^int yylex() {$/;"	f
+yylhs	y.tab.c	/^static const YYINT yylhs[] = {                           -1,$/;"	v	file:
+yylval	y.tab.c	/^YYSTYPE  yylval;$/;"	v
+yyname	y.tab.c	/^static const char *const yyname[] = {$/;"	v	file:
+yynerrs	y.tab.c	/^int      yynerrs;$/;"	v
+yyrindex	y.tab.c	/^static const YYINT yyrindex[] = {                       209,$/;"	v	file:
+yyrule	y.tab.c	/^static const char *const yyrule[] = {$/;"	v	file:
+yysindex	y.tab.c	/^static const YYINT yysindex[] = {                       -85,$/;"	v	file:
+yystack	y.tab.c	/^static YYSTACKDATA yystack;$/;"	v	file:
+yytable	y.tab.c	/^static const YYINT yytable[] = {                         86,$/;"	v	file:
+yyval	y.tab.c	/^YYSTYPE  yyval;$/;"	v
+z	tests/test16.c	/^struct a z[100];$/;"	v	typeref:struct:a

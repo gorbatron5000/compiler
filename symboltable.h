@@ -16,6 +16,7 @@ struct type {
 struct symbol {
    struct type *type;
    char *id;
+   int storage;
    union {
       struct symbollist *params;
       struct symbollist *members;

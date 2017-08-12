@@ -5,10 +5,18 @@
 #include "symboltable.h"
 #include "scan.h"
 #include "asm.h"
+#include "y.tab.h"
 
 int regs[NUMREGS];
 int stacktop;
-struct op opers[] = { {'+', "add"}, {'-', "sub"}, {'*', "mul"}, {'/', "div"} };
+struct op opers[] = { {'+', "add"}, {'-', "sub"}, {'*', "mul"}, {'/', "div"}, {'=', "mov" } };
+
+int initregs()
+{
+   int i;
+   for (i = 0; i < 2; i++)
+      regs[i] = TAKEN;
+}
 
 int gtrg(int scratch)
 {
@@ -53,7 +61,10 @@ char *optostr(int op)
 int load(struct symbol *ent)
 {
    int ret = gtrg(0);
-   printf("lw $%d, %d($%d)\n", ret, get_stack_offset(ent), SPREG);
+   if (ent->storage == LOCAL)
+      printf("lw $%d, %d($%d)\n", ret, get_stack_offset(ent), SPREG);
+   else if (ent->storage == IMMEDIATE)
+      printf("li $%d, %s\n", ret, ent->id);
    return ret;
 }
 
@@ -85,10 +96,28 @@ void fixentry()
       }
 }
 
+void assign_registers()
+{
+   struct list *ptr;
+   for (ptr = rtls; ptr; ptr = ptr->next);
+}
+
+void print_num(int reg)
+{
+   printf("addi $a0, $%d, 0\n", reg);
+   printf("li $v0, 1\n");
+   printf("syscall\n");
+   printf("li $a0, 10\n");
+   printf("li $v0, 11\n");
+   printf("syscall\n");
+}
+
 void print_asm()
 {
    struct list *ptr;
    int r1, r2, r3;
+
+   initregs();
    fixentry();
 
    for (ptr = rtls; ptr; ptr = ptr->next) {
@@ -99,6 +128,31 @@ void print_asm()
          r2 = load(ptr->sptr->rhs->dst);
          r3 = binaryop(r1, r2, ptr->sptr->op);
          store(ptr->dst, r3);
+      }
+      else if (ptr->type == COPY) {
+         r1 = load(ptr->sptr->rhs->dst);
+         store(ptr->dst, r1);
+      }
+      else if (ptr->type == RETURN) {
+         r1 = RETREG;
+         r2 = load(ptr->dst);
+         printf("addi $%d, $%d, 0\n", r1, r2);
+         print_num(RETREG);
+         printf("jr $ra\n");
+      }
+      else if (ptr->type == ENTERFUNC) {
+         printf(".globl %s\n", ptr->sptr->label);
+         printf("%s:\n", ptr->sptr->label);
+      }
+      else if (ptr->type == EXITFUNC) {
+         printf("# %s\n", ptr->sptr->label);
+      }
+      else if (ptr->type == JUMP && ptr->sptr->test) {
+         r1 = load(ptr->sptr->test->dst);
+         printf("bne $%d,$0,%s\n", r1, ptr->sptr->target->sptr->label);
+      }
+      else if (ptr->type == JUMP) {
+         printf("j %s\n", ptr->sptr->target->sptr->label);
       }
       /*
       else if (ptr->type == JUMP) {

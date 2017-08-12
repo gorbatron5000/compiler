@@ -73,12 +73,12 @@ struct list *func(struct symbol *fdecl, struct symbol *fparams,
    struct list *funcinit)
 {
    union semrec *s = makesemrec();
-   sprintf(funcinit->sptr->label, "%s():", fdecl->id);
-   funcinit->type = FUNC;
+   sprintf(funcinit->sptr->label, "%s", fdecl->id);
+   funcinit->type = ENTERFUNC;
    fdecl->type = type(NULL, 0, FUNC);
    decrease_scope();
    sprintf(s->label, ".exit %s", fdecl->id);
-   return new_rtl(NULL, s, FUNC);
+   return new_rtl(NULL, s, EXITFUNC);
 }
 
 struct list *empty()
@@ -93,7 +93,7 @@ struct list *binst(struct list *lhs, struct list *rhs, int oper)
    s->lhs = lhs;
    s->rhs = rhs;
    s->op = oper > 256 ? toktostr(oper)[0] : oper;
-   return new_rtl(temp(lhs->dst->type), s, 
+   return new_rtl(oper == '=' ? s->lhs->dst : temp(lhs->dst->type), s, 
             oper == INCR || oper == DECR ? ACC : optype(oper));
 }
 
@@ -132,12 +132,14 @@ struct list *makeimmediate(int d)
 {
    union semrec *s = makesemrec();
    char tmp[MAXRTL];
+   struct list *rtl;
    s->entry = malloc(sizeof(struct symbol));
    s->entry->type = type(NULL, 1, INT);
    sprintf(tmp, "%d", d);
    s->entry->id = malloc(strlen(tmp)+1);
    strcpy(s->entry->id, tmp);
-   return new_rtl(temp(type(NULL, 1, INT)), s, SYMBOL);
+   s->entry->storage = IMMEDIATE;
+   return new_rtl(s->entry, s, IMMEDIATE);
 }
 
 struct list *postfix(struct list *rtl, int oper)
@@ -315,7 +317,7 @@ void print_rtls()
          printf("%s = %s;\n", ptr->sptr->lhs->dst->id,
                               ptr->sptr->rhs->dst->id);
       else if (ptr->type == FUNC || ptr->type == ASM || ptr->type == CALL)
-         printf("%s\n", ptr->sptr->label);
+         printf("%s:\n", ptr->sptr->label);
       else if (ptr->type == PARAM)
          printf("param(%s)\n", ptr->dst->id);
       else if (ptr->type == CVT)

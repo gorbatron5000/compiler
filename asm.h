@@ -2,11 +2,12 @@
 #define ASM_H
 
 #define NUMREGS 32
+#define RETREG  2
 #define SPREG   29
 #define TAKEN   1
 #define FREE    0
 #define MAXOP   6
-#define NUMOPS  4
+#define NUMOPS  5
 
 struct {
    int offset;

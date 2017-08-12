@@ -11,5 +11,5 @@ int main()
 {
    struct a e;
    e.b = 1;
-   e.l = 2;
+   e.t = 2;
 }

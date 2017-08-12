@@ -26,6 +26,7 @@
             multiplicative_expression additive_expression if_statement
             postfix_expression prefix_expression statements assignment
             while_statement for_statement opt_expression function E
+            assignments
 %type <decl> declaration vars var param_list A B
 %type <type> arrays addresses storage_specifier enumerator typedefname
 %type <num> num type_specifier assign_oper prefix_op
@@ -35,7 +36,7 @@
 %%
 
 start:
-   { print_rtls(); print_asm(); } |
+   { print_asm(); } |
    global_declaration start {};
 
 global_declaration:
@@ -51,21 +52,12 @@ statement:
    return ';' {} |
    declaration ';' {} |
    assignment ';' {} |
-   call ';' {} |
    if_statement lbl    { backpatch($1->falselist, $2); } |
    while_statement lbl { backpatch($1->falselist, $2); } |
    for_statement lbl   { backpatch($1->falselist, $2); };
 
 return:
    RETURN opt_expression { ret($2); } |
-
-call_list:
-   {} |
-   var { param($1); } |
-   call_list ',' var { param($3); };
-
-call:
-   IDENTIFIER '(' call_list ')' { call($1); };
 
 declaration:
    type_specifier vars { $$ = $2; };
@@ -146,10 +138,6 @@ arrays:
 num:
    NUMBER { $$ = atoi(yylval.str); };
 
-assignment:
-   expression { $$ = $1; } |
-   postfix_expression assign_oper assignment { binst($1, $3, $2); };
-
 assign_oper:
    '='      { $$ = '='; } |
    NEQ      { $$ = NEQ; } |
@@ -212,6 +200,10 @@ opt_expression:
 jump:
    { $$ = jump(); };
 
+assignment:
+   expression { $$ = $1; } |
+   postfix_expression assign_oper assignment { binst($1, $3, $2); };
+
 expression:
    logical_or { $$ = $1; };
 
@@ -261,9 +253,15 @@ prefix_op:
    '~' { $$ = '~'; } |
    '!' { $$ = '!'; };
 
+assignments:
+   {} |
+   assignment { $$ = $1; } |
+   assignment ',' assignments { $$ = $1; };
+
 postfix_expression:
    terminal { $$ = $1; } |
    postfix_expression '[' expression ']' { $$ = arrayref($1, $3); } |
+   postfix_expression '(' assignments ')' { $$ = call($1, $3); } |
    postfix_expression INCR { $$ = postfix($1, INCR); } |
    postfix_expression DECR { $$ = postfix($1, DECR); } |
    postfix_expression '.' IDENTIFIER { $$ = access_member($1, $3); } |

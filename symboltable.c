@@ -144,6 +144,7 @@ struct symbol *add_symbol(struct symbol *s)
    sl->ptr = s;
    sl->next = symtbltop->slist;
    symtbltop->slist = sl;
+   s->storage = LOCAL;
 
    return sl->ptr;
 }

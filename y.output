@@ -13,164 +13,162 @@
    8  statement : return ';'
    9            | declaration ';'
   10            | assignment ';'
-  11            | call ';'
-  12            | if_statement lbl
-  13            | while_statement lbl
-  14            | for_statement lbl
+  11            | if_statement lbl
+  12            | while_statement lbl
+  13            | for_statement lbl
 
-  15  return : RETURN opt_expression
-  16         |
+  14  return : RETURN opt_expression
+  15         |
 
-  17  call_list :
-  18            | var
-  19            | call_list ',' var
+  16  declaration : type_specifier vars
 
-  20  call : IDENTIFIER '(' call_list ')'
+  17  storage_specifier : AUTO
+  18                    | REGISTER
+  19                    | STATIC
+  20                    | EXTERN
+  21                    | TYPEDEF
 
-  21  declaration : type_specifier vars
+  22  type_specifier : VOID
+  23                 | CHAR
+  24                 | SHORT
+  25                 | INT
+  26                 | LONG
+  27                 | FLOAT
+  28                 | DOUBLE
+  29                 | SIGNED
+  30                 | UNSIGNED
+  31                 | compoundtype
+  32                 | enumerator
+  33                 | typedefname
 
-  22  storage_specifier : AUTO
-  23                    | REGISTER
-  24                    | STATIC
-  25                    | EXTERN
-  26                    | TYPEDEF
+  34  compoundtype : struct_or_union IDENTIFIER A '{' struct_declarations '}'
+  35               | struct_or_union B '{' '}'
+  36               | struct_or_union IDENTIFIER
 
-  27  type_specifier : VOID
-  28                 | CHAR
-  29                 | SHORT
-  30                 | INT
-  31                 | LONG
-  32                 | FLOAT
-  33                 | DOUBLE
-  34                 | SIGNED
-  35                 | UNSIGNED
-  36                 | compoundtype
-  37                 | enumerator
-  38                 | typedefname
+  37  A :
 
-  39  compoundtype : struct_or_union IDENTIFIER A '{' struct_declarations '}'
-  40               | struct_or_union B '{' '}'
-  41               | struct_or_union IDENTIFIER
+  38  B :
 
-  42  A :
+  39  struct_or_union : STRUCT
+  40                  | UNION
 
-  43  B :
+  41  struct_declarations : struct_declaration ';'
+  42                      | struct_declaration ';' struct_declarations
 
-  44  struct_or_union : STRUCT
-  45                  | UNION
+  43  struct_declaration : type_specifier struct_member
 
-  46  struct_declarations : struct_declaration ';'
-  47                      | struct_declaration ';' struct_declarations
+  44  struct_member : var
+  45                | var ',' struct_member
 
-  48  struct_declaration : type_specifier struct_member
+  46  enumerator : ENUMERATOR
 
-  49  struct_member : var
-  50                | var ',' struct_member
+  47  typedefname : TYPEDEF
 
-  51  enumerator : ENUMERATOR
+  48  vars :
+  49       | var
+  50       | var ',' vars
 
-  52  typedefname : TYPEDEF
+  51  var : addresses IDENTIFIER arrays
 
-  53  vars :
-  54       | var
-  55       | var ',' vars
+  52  addresses :
+  53            | '*' addresses
+  54            | '&' addresses
 
-  56  var : addresses IDENTIFIER arrays
+  55  arrays :
+  56         | '[' num ']' arrays
 
-  57  addresses :
-  58            | '*' addresses
-  59            | '&' addresses
+  57  num : NUMBER
 
-  60  arrays :
-  61         | '[' num ']' arrays
+  58  assign_oper : '='
+  59              | NEQ
+  60              | ADDEQ
+  61              | SUBEQ
+  62              | MULEQ
+  63              | DIVEQ
+  64              | MODEQ
+  65              | LSHIFTEQ
+  66              | RSHIFTEQ
+  67              | ANDEQ
+  68              | XOREQ
+  69              | OREQ
 
-  62  num : NUMBER
+  70  function : declaration E '(' P param_list ')' F ';'
+  71           | declaration E '(' P param_list ')' F G '{' statements '}'
 
-  63  assignment : expression
-  64             | postfix_expression assign_oper assignment
+  72  E :
 
-  65  assign_oper : '='
-  66              | NEQ
-  67              | ADDEQ
-  68              | SUBEQ
-  69              | MULEQ
-  70              | DIVEQ
-  71              | MODEQ
-  72              | LSHIFTEQ
-  73              | RSHIFTEQ
-  74              | ANDEQ
-  75              | XOREQ
-  76              | OREQ
+  73  F :
 
-  77  function : declaration E '(' P param_list ')' F ';'
-  78           | declaration E '(' P param_list ')' F G '{' statements '}'
+  74  G :
 
-  79  E :
+  75  P :
 
-  80  F :
+  76  Q :
 
-  81  G :
+  77  param_list :
+  78             | type_specifier var ',' param_list
+  79             | type_specifier var
 
-  82  P :
+  80  if_statement : IF '(' expression ')' lbl statement
 
-  83  Q :
+  81  while_statement : WHILE '(' lbl expression ')' lbl statement jump
 
-  84  param_list :
-  85             | type_specifier var ',' param_list
-  86             | type_specifier var
+  82  for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump
 
-  87  if_statement : IF '(' expression ')' lbl statement
+  83  opt_expression :
+  84                 | assignment
 
-  88  while_statement : WHILE '(' lbl expression ')' lbl statement jump
+  85  jump :
 
-  89  for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump
+  86  assignment : expression
+  87             | postfix_expression assign_oper assignment
 
-  90  opt_expression :
-  91                 | assignment
+  88  expression : logical_or
 
-  92  jump :
+  89  logical_or : logical_and
+  90             | logical_or LOR lbl logical_and
 
-  93  expression : logical_or
+  91  logical_and : additive_expression
+  92              | logical_and LAND lbl additive_expression
 
-  94  logical_or : logical_and
-  95             | logical_or LOR lbl logical_and
+  93  additive_expression : multiplicative_expression
+  94                      | additive_expression '+' multiplicative_expression
+  95                      | additive_expression '-' multiplicative_expression
 
-  96  logical_and : additive_expression
-  97              | logical_and LAND lbl additive_expression
+  96  multiplicative_expression : prefix_expression
+  97                            | multiplicative_expression '*' postfix_expression
+  98                            | multiplicative_expression '/' postfix_expression
 
-  98  additive_expression : multiplicative_expression
-  99                      | additive_expression '+' multiplicative_expression
- 100                      | additive_expression '-' multiplicative_expression
+  99  prefix_expression : postfix_expression
+ 100                    | prefix_op postfix_expression
+ 101                    | INCR postfix_expression
+ 102                    | DECR postfix_expression
 
- 101  multiplicative_expression : prefix_expression
- 102                            | multiplicative_expression '*' postfix_expression
- 103                            | multiplicative_expression '/' postfix_expression
+ 103  prefix_op : '&'
+ 104            | '|'
+ 105            | '+'
+ 106            | '-'
+ 107            | '~'
+ 108            | '!'
 
- 104  prefix_expression : postfix_expression
- 105                    | prefix_op postfix_expression
- 106                    | INCR postfix_expression
- 107                    | DECR postfix_expression
+ 109  assignments :
+ 110              | assignment
+ 111              | assignment ',' assignments
 
- 108  prefix_op : '&'
- 109            | '|'
- 110            | '+'
- 111            | '-'
- 112            | '~'
- 113            | '!'
+ 112  postfix_expression : terminal
+ 113                     | postfix_expression '[' expression ']'
+ 114                     | postfix_expression '(' assignments ')'
+ 115                     | postfix_expression INCR
+ 116                     | postfix_expression DECR
+ 117                     | postfix_expression '.' IDENTIFIER
+ 118                     | postfix_expression DEREF IDENTIFIER
 
- 114  postfix_expression : terminal
- 115                     | postfix_expression '[' expression ']'
- 116                     | postfix_expression INCR
- 117                     | postfix_expression DECR
- 118                     | postfix_expression '.' IDENTIFIER
- 119                     | postfix_expression DEREF IDENTIFIER
+ 119  terminal : TRUE
+ 120           | FALSE
+ 121           | IDENTIFIER
+ 122           | NUMBER
 
- 120  terminal : TRUE
- 121           | FALSE
- 122           | IDENTIFIER
- 123           | NUMBER
-
- 124  lbl :
+ 123  lbl :
 
 state 0
 	$accept : . start $end  (0)
@@ -203,81 +201,81 @@ state 0
 
 
 state 1
-	type_specifier : SIGNED .  (34)
-
-	.  reduce 34
-
-
-state 2
-	struct_or_union : STRUCT .  (44)
-
-	.  reduce 44
-
-
-state 3
-	typedefname : TYPEDEF .  (52)
-
-	.  reduce 52
-
-
-state 4
-	struct_or_union : UNION .  (45)
-
-	.  reduce 45
-
-
-state 5
-	type_specifier : VOID .  (27)
-
-	.  reduce 27
-
-
-state 6
-	type_specifier : INT .  (30)
-
-	.  reduce 30
-
-
-state 7
-	type_specifier : FLOAT .  (32)
-
-	.  reduce 32
-
-
-state 8
-	type_specifier : CHAR .  (28)
-
-	.  reduce 28
-
-
-state 9
-	type_specifier : SHORT .  (29)
+	type_specifier : SIGNED .  (29)
 
 	.  reduce 29
 
 
-state 10
-	type_specifier : LONG .  (31)
+state 2
+	struct_or_union : STRUCT .  (39)
 
-	.  reduce 31
+	.  reduce 39
+
+
+state 3
+	typedefname : TYPEDEF .  (47)
+
+	.  reduce 47
+
+
+state 4
+	struct_or_union : UNION .  (40)
+
+	.  reduce 40
+
+
+state 5
+	type_specifier : VOID .  (22)
+
+	.  reduce 22
+
+
+state 6
+	type_specifier : INT .  (25)
+
+	.  reduce 25
+
+
+state 7
+	type_specifier : FLOAT .  (27)
+
+	.  reduce 27
+
+
+state 8
+	type_specifier : CHAR .  (23)
+
+	.  reduce 23
+
+
+state 9
+	type_specifier : SHORT .  (24)
+
+	.  reduce 24
+
+
+state 10
+	type_specifier : LONG .  (26)
+
+	.  reduce 26
 
 
 state 11
-	type_specifier : DOUBLE .  (33)
+	type_specifier : DOUBLE .  (28)
 
-	.  reduce 33
+	.  reduce 28
 
 
 state 12
-	type_specifier : UNSIGNED .  (35)
+	type_specifier : UNSIGNED .  (30)
 
-	.  reduce 35
+	.  reduce 30
 
 
 state 13
-	enumerator : ENUMERATOR .  (51)
+	enumerator : ENUMERATOR .  (46)
 
-	.  reduce 51
+	.  reduce 46
 
 
 state 14
@@ -294,38 +292,38 @@ state 15
 
 state 16
 	global_declaration : declaration . ';'  (4)
-	function : declaration . E '(' P param_list ')' F ';'  (77)
-	function : declaration . E '(' P param_list ')' F G '{' statements '}'  (78)
-	E : .  (79)
+	function : declaration . E '(' P param_list ')' F ';'  (70)
+	function : declaration . E '(' P param_list ')' F G '{' statements '}'  (71)
+	E : .  (72)
 
 	';'  shift 23
-	'('  reduce 79
+	'('  reduce 72
 
 	E  goto 24
 
 
 state 17
-	type_specifier : enumerator .  (37)
+	type_specifier : enumerator .  (32)
 
-	.  reduce 37
+	.  reduce 32
 
 
 state 18
-	type_specifier : typedefname .  (38)
+	type_specifier : typedefname .  (33)
 
-	.  reduce 38
+	.  reduce 33
 
 
 state 19
-	declaration : type_specifier . vars  (21)
-	vars : .  (53)
-	addresses : .  (57)
+	declaration : type_specifier . vars  (16)
+	vars : .  (48)
+	addresses : .  (52)
 
 	'*'  shift 25
 	'&'  shift 26
-	IDENTIFIER  reduce 57
-	';'  reduce 53
-	'('  reduce 53
+	IDENTIFIER  reduce 52
+	';'  reduce 48
+	'('  reduce 48
 
 	vars  goto 27
 	var  goto 28
@@ -363,19 +361,19 @@ state 20
 
 
 state 21
-	type_specifier : compoundtype .  (36)
+	type_specifier : compoundtype .  (31)
 
-	.  reduce 36
+	.  reduce 31
 
 
 state 22
-	compoundtype : struct_or_union . IDENTIFIER A '{' struct_declarations '}'  (39)
-	compoundtype : struct_or_union . B '{' '}'  (40)
-	compoundtype : struct_or_union . IDENTIFIER  (41)
-	B : .  (43)
+	compoundtype : struct_or_union . IDENTIFIER A '{' struct_declarations '}'  (34)
+	compoundtype : struct_or_union . B '{' '}'  (35)
+	compoundtype : struct_or_union . IDENTIFIER  (36)
+	B : .  (38)
 
 	IDENTIFIER  shift 31
-	'{'  reduce 43
+	'{'  reduce 38
 
 	B  goto 32
 
@@ -387,52 +385,52 @@ state 23
 
 
 state 24
-	function : declaration E . '(' P param_list ')' F ';'  (77)
-	function : declaration E . '(' P param_list ')' F G '{' statements '}'  (78)
+	function : declaration E . '(' P param_list ')' F ';'  (70)
+	function : declaration E . '(' P param_list ')' F G '{' statements '}'  (71)
 
 	'('  shift 33
 	.  error
 
 
 state 25
-	addresses : '*' . addresses  (58)
-	addresses : .  (57)
+	addresses : '*' . addresses  (53)
+	addresses : .  (52)
 
 	'*'  shift 25
 	'&'  shift 26
-	IDENTIFIER  reduce 57
+	IDENTIFIER  reduce 52
 
 	addresses  goto 34
 
 
 state 26
-	addresses : '&' . addresses  (59)
-	addresses : .  (57)
+	addresses : '&' . addresses  (54)
+	addresses : .  (52)
 
 	'*'  shift 25
 	'&'  shift 26
-	IDENTIFIER  reduce 57
+	IDENTIFIER  reduce 52
 
 	addresses  goto 35
 
 
 state 27
-	declaration : type_specifier vars .  (21)
+	declaration : type_specifier vars .  (16)
 
-	.  reduce 21
+	.  reduce 16
 
 
 state 28
-	vars : var .  (54)
-	vars : var . ',' vars  (55)
+	vars : var .  (49)
+	vars : var . ',' vars  (50)
 
 	','  shift 36
-	';'  reduce 54
-	'('  reduce 54
+	';'  reduce 49
+	'('  reduce 49
 
 
 state 29
-	var : addresses . IDENTIFIER arrays  (56)
+	var : addresses . IDENTIFIER arrays  (51)
 
 	IDENTIFIER  shift 37
 	.  error
@@ -445,59 +443,59 @@ state 30
 
 
 state 31
-	compoundtype : struct_or_union IDENTIFIER . A '{' struct_declarations '}'  (39)
-	compoundtype : struct_or_union IDENTIFIER .  (41)
-	A : .  (42)
+	compoundtype : struct_or_union IDENTIFIER . A '{' struct_declarations '}'  (34)
+	compoundtype : struct_or_union IDENTIFIER .  (36)
+	A : .  (37)
 
-	IDENTIFIER  reduce 41
-	';'  reduce 41
-	'{'  reduce 42
-	'('  reduce 41
-	'*'  reduce 41
-	'&'  reduce 41
+	IDENTIFIER  reduce 36
+	';'  reduce 36
+	'{'  reduce 37
+	'*'  reduce 36
+	'&'  reduce 36
+	'('  reduce 36
 
 	A  goto 38
 
 
 state 32
-	compoundtype : struct_or_union B . '{' '}'  (40)
+	compoundtype : struct_or_union B . '{' '}'  (35)
 
 	'{'  shift 39
 	.  error
 
 
 state 33
-	function : declaration E '(' . P param_list ')' F ';'  (77)
-	function : declaration E '(' . P param_list ')' F G '{' statements '}'  (78)
-	P : .  (82)
+	function : declaration E '(' . P param_list ')' F ';'  (70)
+	function : declaration E '(' . P param_list ')' F G '{' statements '}'  (71)
+	P : .  (75)
 
-	.  reduce 82
+	.  reduce 75
 
 	P  goto 40
 
 
 state 34
-	addresses : '*' addresses .  (58)
+	addresses : '*' addresses .  (53)
 
-	.  reduce 58
+	.  reduce 53
 
 
 state 35
-	addresses : '&' addresses .  (59)
+	addresses : '&' addresses .  (54)
 
-	.  reduce 59
+	.  reduce 54
 
 
 state 36
-	vars : var ',' . vars  (55)
-	vars : .  (53)
-	addresses : .  (57)
+	vars : var ',' . vars  (50)
+	vars : .  (48)
+	addresses : .  (52)
 
 	'*'  shift 25
 	'&'  shift 26
-	IDENTIFIER  reduce 57
-	';'  reduce 53
-	'('  reduce 53
+	IDENTIFIER  reduce 52
+	';'  reduce 48
+	'('  reduce 48
 
 	vars  goto 41
 	var  goto 28
@@ -505,36 +503,36 @@ state 36
 
 
 state 37
-	var : addresses IDENTIFIER . arrays  (56)
-	arrays : .  (60)
+	var : addresses IDENTIFIER . arrays  (51)
+	arrays : .  (55)
 
 	'['  shift 42
-	';'  reduce 60
-	','  reduce 60
-	'('  reduce 60
-	')'  reduce 60
+	';'  reduce 55
+	','  reduce 55
+	'('  reduce 55
+	')'  reduce 55
 
 	arrays  goto 43
 
 
 state 38
-	compoundtype : struct_or_union IDENTIFIER A . '{' struct_declarations '}'  (39)
+	compoundtype : struct_or_union IDENTIFIER A . '{' struct_declarations '}'  (34)
 
 	'{'  shift 44
 	.  error
 
 
 state 39
-	compoundtype : struct_or_union B '{' . '}'  (40)
+	compoundtype : struct_or_union B '{' . '}'  (35)
 
 	'}'  shift 45
 	.  error
 
 
 state 40
-	function : declaration E '(' P . param_list ')' F ';'  (77)
-	function : declaration E '(' P . param_list ')' F G '{' statements '}'  (78)
-	param_list : .  (84)
+	function : declaration E '(' P . param_list ')' F ';'  (70)
+	function : declaration E '(' P . param_list ')' F G '{' statements '}'  (71)
+	param_list : .  (77)
 
 	SIGNED  shift 1
 	STRUCT  shift 2
@@ -549,7 +547,7 @@ state 40
 	DOUBLE  shift 11
 	UNSIGNED  shift 12
 	ENUMERATOR  shift 13
-	')'  reduce 84
+	')'  reduce 77
 
 	param_list  goto 46
 	enumerator  goto 17
@@ -560,13 +558,13 @@ state 40
 
 
 state 41
-	vars : var ',' vars .  (55)
+	vars : var ',' vars .  (50)
 
-	.  reduce 55
+	.  reduce 50
 
 
 state 42
-	arrays : '[' . num ']' arrays  (61)
+	arrays : '[' . num ']' arrays  (56)
 
 	NUMBER  shift 48
 	.  error
@@ -575,13 +573,13 @@ state 42
 
 
 state 43
-	var : addresses IDENTIFIER arrays .  (56)
+	var : addresses IDENTIFIER arrays .  (51)
 
-	.  reduce 56
+	.  reduce 51
 
 
 state 44
-	compoundtype : struct_or_union IDENTIFIER A '{' . struct_declarations '}'  (39)
+	compoundtype : struct_or_union IDENTIFIER A '{' . struct_declarations '}'  (34)
 
 	SIGNED  shift 1
 	STRUCT  shift 2
@@ -608,52 +606,52 @@ state 44
 
 
 state 45
-	compoundtype : struct_or_union B '{' '}' .  (40)
+	compoundtype : struct_or_union B '{' '}' .  (35)
 
-	.  reduce 40
+	.  reduce 35
 
 
 state 46
-	function : declaration E '(' P param_list . ')' F ';'  (77)
-	function : declaration E '(' P param_list . ')' F G '{' statements '}'  (78)
+	function : declaration E '(' P param_list . ')' F ';'  (70)
+	function : declaration E '(' P param_list . ')' F G '{' statements '}'  (71)
 
 	')'  shift 53
 	.  error
 
 
 state 47
-	param_list : type_specifier . var ',' param_list  (85)
-	param_list : type_specifier . var  (86)
-	addresses : .  (57)
+	param_list : type_specifier . var ',' param_list  (78)
+	param_list : type_specifier . var  (79)
+	addresses : .  (52)
 
 	'*'  shift 25
 	'&'  shift 26
-	IDENTIFIER  reduce 57
+	IDENTIFIER  reduce 52
 
 	var  goto 54
 	addresses  goto 29
 
 
 state 48
-	num : NUMBER .  (62)
+	num : NUMBER .  (57)
 
-	.  reduce 62
+	.  reduce 57
 
 
 state 49
-	arrays : '[' num . ']' arrays  (61)
+	arrays : '[' num . ']' arrays  (56)
 
 	']'  shift 55
 	.  error
 
 
 state 50
-	struct_declaration : type_specifier . struct_member  (48)
-	addresses : .  (57)
+	struct_declaration : type_specifier . struct_member  (43)
+	addresses : .  (52)
 
 	'*'  shift 25
 	'&'  shift 26
-	IDENTIFIER  reduce 57
+	IDENTIFIER  reduce 52
 
 	var  goto 56
 	addresses  goto 29
@@ -661,74 +659,74 @@ state 50
 
 
 state 51
-	compoundtype : struct_or_union IDENTIFIER A '{' struct_declarations . '}'  (39)
+	compoundtype : struct_or_union IDENTIFIER A '{' struct_declarations . '}'  (34)
 
 	'}'  shift 58
 	.  error
 
 
 state 52
-	struct_declarations : struct_declaration . ';'  (46)
-	struct_declarations : struct_declaration . ';' struct_declarations  (47)
+	struct_declarations : struct_declaration . ';'  (41)
+	struct_declarations : struct_declaration . ';' struct_declarations  (42)
 
 	';'  shift 59
 	.  error
 
 
 state 53
-	function : declaration E '(' P param_list ')' . F ';'  (77)
-	function : declaration E '(' P param_list ')' . F G '{' statements '}'  (78)
-	F : .  (80)
+	function : declaration E '(' P param_list ')' . F ';'  (70)
+	function : declaration E '(' P param_list ')' . F G '{' statements '}'  (71)
+	F : .  (73)
 
-	.  reduce 80
+	.  reduce 73
 
 	F  goto 60
 
 
 state 54
-	param_list : type_specifier var . ',' param_list  (85)
-	param_list : type_specifier var .  (86)
+	param_list : type_specifier var . ',' param_list  (78)
+	param_list : type_specifier var .  (79)
 
 	','  shift 61
-	')'  reduce 86
+	')'  reduce 79
 
 
 state 55
-	arrays : '[' num ']' . arrays  (61)
-	arrays : .  (60)
+	arrays : '[' num ']' . arrays  (56)
+	arrays : .  (55)
 
 	'['  shift 42
-	';'  reduce 60
-	','  reduce 60
-	'('  reduce 60
-	')'  reduce 60
+	';'  reduce 55
+	','  reduce 55
+	'('  reduce 55
+	')'  reduce 55
 
 	arrays  goto 62
 
 
 state 56
-	struct_member : var .  (49)
-	struct_member : var . ',' struct_member  (50)
+	struct_member : var .  (44)
+	struct_member : var . ',' struct_member  (45)
 
 	','  shift 63
-	';'  reduce 49
+	';'  reduce 44
 
 
 state 57
-	struct_declaration : type_specifier struct_member .  (48)
+	struct_declaration : type_specifier struct_member .  (43)
 
-	.  reduce 48
+	.  reduce 43
 
 
 state 58
-	compoundtype : struct_or_union IDENTIFIER A '{' struct_declarations '}' .  (39)
+	compoundtype : struct_or_union IDENTIFIER A '{' struct_declarations '}' .  (34)
 
-	.  reduce 39
+	.  reduce 34
 
 
 state 59
-	struct_declarations : struct_declaration ';' .  (46)
-	struct_declarations : struct_declaration ';' . struct_declarations  (47)
+	struct_declarations : struct_declaration ';' .  (41)
+	struct_declarations : struct_declaration ';' . struct_declarations  (42)
 
 	SIGNED  shift 1
 	STRUCT  shift 2
@@ -743,7 +741,7 @@ state 59
 	DOUBLE  shift 11
 	UNSIGNED  shift 12
 	ENUMERATOR  shift 13
-	'}'  reduce 46
+	'}'  reduce 41
 
 	enumerator  goto 17
 	typedefname  goto 18
@@ -755,19 +753,19 @@ state 59
 
 
 state 60
-	function : declaration E '(' P param_list ')' F . ';'  (77)
-	function : declaration E '(' P param_list ')' F . G '{' statements '}'  (78)
-	G : .  (81)
+	function : declaration E '(' P param_list ')' F . ';'  (70)
+	function : declaration E '(' P param_list ')' F . G '{' statements '}'  (71)
+	G : .  (74)
 
 	';'  shift 65
-	'{'  reduce 81
+	'{'  reduce 74
 
 	G  goto 66
 
 
 state 61
-	param_list : type_specifier var ',' . param_list  (85)
-	param_list : .  (84)
+	param_list : type_specifier var ',' . param_list  (78)
+	param_list : .  (77)
 
 	SIGNED  shift 1
 	STRUCT  shift 2
@@ -782,7 +780,7 @@ state 61
 	DOUBLE  shift 11
 	UNSIGNED  shift 12
 	ENUMERATOR  shift 13
-	')'  reduce 84
+	')'  reduce 77
 
 	param_list  goto 67
 	enumerator  goto 17
@@ -793,18 +791,18 @@ state 61
 
 
 state 62
-	arrays : '[' num ']' arrays .  (61)
+	arrays : '[' num ']' arrays .  (56)
 
-	.  reduce 61
+	.  reduce 56
 
 
 state 63
-	struct_member : var ',' . struct_member  (50)
-	addresses : .  (57)
+	struct_member : var ',' . struct_member  (45)
+	addresses : .  (52)
 
 	'*'  shift 25
 	'&'  shift 26
-	IDENTIFIER  reduce 57
+	IDENTIFIER  reduce 52
 
 	var  goto 56
 	addresses  goto 29
@@ -812,40 +810,40 @@ state 63
 
 
 state 64
-	struct_declarations : struct_declaration ';' struct_declarations .  (47)
+	struct_declarations : struct_declaration ';' struct_declarations .  (42)
 
-	.  reduce 47
+	.  reduce 42
 
 
 state 65
-	function : declaration E '(' P param_list ')' F ';' .  (77)
+	function : declaration E '(' P param_list ')' F ';' .  (70)
 
-	.  reduce 77
+	.  reduce 70
 
 
 state 66
-	function : declaration E '(' P param_list ')' F G . '{' statements '}'  (78)
+	function : declaration E '(' P param_list ')' F G . '{' statements '}'  (71)
 
 	'{'  shift 69
 	.  error
 
 
 state 67
-	param_list : type_specifier var ',' param_list .  (85)
+	param_list : type_specifier var ',' param_list .  (78)
 
-	.  reduce 85
+	.  reduce 78
 
 
 state 68
-	struct_member : var ',' struct_member .  (50)
+	struct_member : var ',' struct_member .  (45)
 
-	.  reduce 50
+	.  reduce 45
 
 
 state 69
-	function : declaration E '(' P param_list ')' F G '{' . statements '}'  (78)
+	function : declaration E '(' P param_list ')' F G '{' . statements '}'  (71)
 	statements : .  (5)
-	return : .  (16)
+	return : .  (15)
 
 	RETURN  shift 70
 	SIGNED  shift 1
@@ -877,7 +875,7 @@ state 69
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 16
+	';'  reduce 15
 	'}'  reduce 5
 
 	statement  goto 87
@@ -900,28 +898,27 @@ state 69
 	type_specifier  goto 19
 	prefix_op  goto 102
 	return  goto 103
-	call  goto 104
 	compoundtype  goto 21
 	struct_or_union  goto 22
 
 
 state 70
-	return : RETURN . opt_expression  (15)
-	opt_expression : .  (90)
+	return : RETURN . opt_expression  (14)
+	opt_expression : .  (83)
 
 	INCR  shift 74
 	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	'&'  shift 81
 	'+'  shift 82
 	'-'  shift 83
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 90
+	';'  reduce 83
 
 	logical_or  goto 88
 	logical_and  goto 89
@@ -931,156 +928,131 @@ state 70
 	additive_expression  goto 93
 	postfix_expression  goto 95
 	prefix_expression  goto 96
-	assignment  goto 106
-	opt_expression  goto 107
+	assignment  goto 104
+	opt_expression  goto 105
 	prefix_op  goto 102
 
 
 state 71
-	while_statement : WHILE . '(' lbl expression ')' lbl statement jump  (88)
+	while_statement : WHILE . '(' lbl expression ')' lbl statement jump  (81)
+
+	'('  shift 106
+	.  error
+
+
+state 72
+	for_statement : FOR . '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (82)
+
+	'('  shift 107
+	.  error
+
+
+state 73
+	if_statement : IF . '(' expression ')' lbl statement  (80)
 
 	'('  shift 108
 	.  error
 
 
-state 72
-	for_statement : FOR . '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (89)
-
-	'('  shift 109
-	.  error
-
-
-state 73
-	if_statement : IF . '(' expression ')' lbl statement  (87)
-
-	'('  shift 110
-	.  error
-
-
 state 74
-	prefix_expression : INCR . postfix_expression  (106)
+	prefix_expression : INCR . postfix_expression  (101)
 
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	.  error
 
 	terminal  goto 90
-	postfix_expression  goto 111
+	postfix_expression  goto 109
 
 
 state 75
-	prefix_expression : DECR . postfix_expression  (107)
+	prefix_expression : DECR . postfix_expression  (102)
 
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	.  error
 
 	terminal  goto 90
-	postfix_expression  goto 112
+	postfix_expression  goto 110
 
 
 state 76
-	terminal : TRUE .  (120)
+	terminal : TRUE .  (119)
+
+	.  reduce 119
+
+
+state 77
+	terminal : FALSE .  (120)
 
 	.  reduce 120
 
 
-state 77
-	terminal : FALSE .  (121)
+state 78
+	terminal : NUMBER .  (122)
+
+	.  reduce 122
+
+
+state 79
+	terminal : IDENTIFIER .  (121)
 
 	.  reduce 121
 
 
-state 78
-	terminal : NUMBER .  (123)
-
-	.  reduce 123
-
-
-state 79
-	call : IDENTIFIER . '(' call_list ')'  (20)
-	terminal : IDENTIFIER .  (122)
-
-	'('  shift 113
-	DEREF  reduce 122
-	MULEQ  reduce 122
-	DIVEQ  reduce 122
-	MODEQ  reduce 122
-	ADDEQ  reduce 122
-	SUBEQ  reduce 122
-	LSHIFTEQ  reduce 122
-	RSHIFTEQ  reduce 122
-	ANDEQ  reduce 122
-	XOREQ  reduce 122
-	OREQ  reduce 122
-	INCR  reduce 122
-	DECR  reduce 122
-	NEQ  reduce 122
-	LAND  reduce 122
-	LOR  reduce 122
-	';'  reduce 122
-	'*'  reduce 122
-	'['  reduce 122
-	'='  reduce 122
-	'+'  reduce 122
-	'-'  reduce 122
-	'/'  reduce 122
-	'.'  reduce 122
-
-
 state 80
 	statements : '{' . P statements '}' Q  (6)
-	P : .  (82)
+	P : .  (75)
 
-	.  reduce 82
+	.  reduce 75
 
-	P  goto 114
+	P  goto 111
 
 
 state 81
-	prefix_op : '&' .  (108)
+	prefix_op : '&' .  (103)
 
-	.  reduce 108
+	.  reduce 103
 
 
 state 82
-	prefix_op : '+' .  (110)
+	prefix_op : '+' .  (105)
 
-	.  reduce 110
+	.  reduce 105
 
 
 state 83
-	prefix_op : '-' .  (111)
+	prefix_op : '-' .  (106)
 
-	.  reduce 111
+	.  reduce 106
 
 
 state 84
-	prefix_op : '|' .  (109)
+	prefix_op : '|' .  (104)
 
-	.  reduce 109
+	.  reduce 104
 
 
 state 85
-	prefix_op : '~' .  (112)
+	prefix_op : '~' .  (107)
 
-	.  reduce 112
+	.  reduce 107
 
 
 state 86
-	prefix_op : '!' .  (113)
+	prefix_op : '!' .  (108)
 
-	.  reduce 113
+	.  reduce 108
 
 
 state 87
 	statements : statement . statements  (7)
 	statements : .  (5)
-	return : .  (16)
+	return : .  (15)
 
 	RETURN  shift 70
 	SIGNED  shift 1
@@ -1112,7 +1084,7 @@ state 87
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 16
+	';'  reduce 15
 	'}'  reduce 5
 
 	statement  goto 87
@@ -1125,7 +1097,7 @@ state 87
 	if_statement  goto 94
 	postfix_expression  goto 95
 	prefix_expression  goto 96
-	statements  goto 115
+	statements  goto 112
 	assignment  goto 98
 	while_statement  goto 99
 	for_statement  goto 100
@@ -1135,237 +1107,230 @@ state 87
 	type_specifier  goto 19
 	prefix_op  goto 102
 	return  goto 103
-	call  goto 104
 	compoundtype  goto 21
 	struct_or_union  goto 22
 
 
 state 88
-	expression : logical_or .  (93)
-	logical_or : logical_or . LOR lbl logical_and  (95)
+	expression : logical_or .  (88)
+	logical_or : logical_or . LOR lbl logical_and  (90)
 
-	LOR  shift 116
-	';'  reduce 93
-	')'  reduce 93
-	']'  reduce 93
+	LOR  shift 113
+	';'  reduce 88
+	','  reduce 88
+	']'  reduce 88
+	')'  reduce 88
 
 
 state 89
-	logical_or : logical_and .  (94)
-	logical_and : logical_and . LAND lbl additive_expression  (97)
+	logical_or : logical_and .  (89)
+	logical_and : logical_and . LAND lbl additive_expression  (92)
 
-	LAND  shift 117
-	LOR  reduce 94
-	';'  reduce 94
-	')'  reduce 94
-	']'  reduce 94
+	LAND  shift 114
+	LOR  reduce 89
+	';'  reduce 89
+	','  reduce 89
+	']'  reduce 89
+	')'  reduce 89
 
 
 state 90
-	postfix_expression : terminal .  (114)
+	postfix_expression : terminal .  (112)
 
-	.  reduce 114
+	.  reduce 112
 
 
 state 91
-	assignment : expression .  (63)
+	assignment : expression .  (86)
 
-	.  reduce 63
+	.  reduce 86
 
 
 state 92
-	additive_expression : multiplicative_expression .  (98)
-	multiplicative_expression : multiplicative_expression . '*' postfix_expression  (102)
-	multiplicative_expression : multiplicative_expression . '/' postfix_expression  (103)
+	additive_expression : multiplicative_expression .  (93)
+	multiplicative_expression : multiplicative_expression . '*' postfix_expression  (97)
+	multiplicative_expression : multiplicative_expression . '/' postfix_expression  (98)
 
-	'*'  shift 118
-	'/'  shift 119
-	LAND  reduce 98
-	LOR  reduce 98
-	';'  reduce 98
-	')'  reduce 98
-	']'  reduce 98
-	'+'  reduce 98
-	'-'  reduce 98
+	'*'  shift 115
+	'/'  shift 116
+	LAND  reduce 93
+	LOR  reduce 93
+	';'  reduce 93
+	','  reduce 93
+	']'  reduce 93
+	')'  reduce 93
+	'+'  reduce 93
+	'-'  reduce 93
 
 
 state 93
-	logical_and : additive_expression .  (96)
-	additive_expression : additive_expression . '+' multiplicative_expression  (99)
-	additive_expression : additive_expression . '-' multiplicative_expression  (100)
+	logical_and : additive_expression .  (91)
+	additive_expression : additive_expression . '+' multiplicative_expression  (94)
+	additive_expression : additive_expression . '-' multiplicative_expression  (95)
 
-	'+'  shift 120
-	'-'  shift 121
-	LAND  reduce 96
-	LOR  reduce 96
-	';'  reduce 96
-	')'  reduce 96
-	']'  reduce 96
+	'+'  shift 117
+	'-'  shift 118
+	LAND  reduce 91
+	LOR  reduce 91
+	';'  reduce 91
+	','  reduce 91
+	']'  reduce 91
+	')'  reduce 91
 
 
 state 94
-	statement : if_statement . lbl  (12)
-	lbl : .  (124)
+	statement : if_statement . lbl  (11)
+	lbl : .  (123)
 
-	.  reduce 124
+	.  reduce 123
 
-	lbl  goto 122
+	lbl  goto 119
 
 
 state 95
-	assignment : postfix_expression . assign_oper assignment  (64)
-	prefix_expression : postfix_expression .  (104)
-	postfix_expression : postfix_expression . '[' expression ']'  (115)
-	postfix_expression : postfix_expression . INCR  (116)
-	postfix_expression : postfix_expression . DECR  (117)
-	postfix_expression : postfix_expression . '.' IDENTIFIER  (118)
-	postfix_expression : postfix_expression . DEREF IDENTIFIER  (119)
+	assignment : postfix_expression . assign_oper assignment  (87)
+	prefix_expression : postfix_expression .  (99)
+	postfix_expression : postfix_expression . '[' expression ']'  (113)
+	postfix_expression : postfix_expression . '(' assignments ')'  (114)
+	postfix_expression : postfix_expression . INCR  (115)
+	postfix_expression : postfix_expression . DECR  (116)
+	postfix_expression : postfix_expression . '.' IDENTIFIER  (117)
+	postfix_expression : postfix_expression . DEREF IDENTIFIER  (118)
 
-	DEREF  shift 123
-	MULEQ  shift 124
-	DIVEQ  shift 125
-	MODEQ  shift 126
-	ADDEQ  shift 127
-	SUBEQ  shift 128
-	LSHIFTEQ  shift 129
-	RSHIFTEQ  shift 130
-	ANDEQ  shift 131
-	XOREQ  shift 132
-	OREQ  shift 133
-	INCR  shift 134
-	DECR  shift 135
-	NEQ  shift 136
-	'['  shift 137
-	'='  shift 138
-	'.'  shift 139
-	LAND  reduce 104
-	LOR  reduce 104
-	';'  reduce 104
-	')'  reduce 104
-	'*'  reduce 104
-	'+'  reduce 104
-	'-'  reduce 104
-	'/'  reduce 104
+	DEREF  shift 120
+	MULEQ  shift 121
+	DIVEQ  shift 122
+	MODEQ  shift 123
+	ADDEQ  shift 124
+	SUBEQ  shift 125
+	LSHIFTEQ  shift 126
+	RSHIFTEQ  shift 127
+	ANDEQ  shift 128
+	XOREQ  shift 129
+	OREQ  shift 130
+	INCR  shift 131
+	DECR  shift 132
+	NEQ  shift 133
+	'['  shift 134
+	'='  shift 135
+	'('  shift 136
+	'.'  shift 137
+	LAND  reduce 99
+	LOR  reduce 99
+	';'  reduce 99
+	','  reduce 99
+	'*'  reduce 99
+	')'  reduce 99
+	'+'  reduce 99
+	'-'  reduce 99
+	'/'  reduce 99
 
-	assign_oper  goto 140
+	assign_oper  goto 138
 
 
 state 96
-	multiplicative_expression : prefix_expression .  (101)
+	multiplicative_expression : prefix_expression .  (96)
 
-	.  reduce 101
+	.  reduce 96
 
 
 state 97
-	function : declaration E '(' P param_list ')' F G '{' statements . '}'  (78)
+	function : declaration E '(' P param_list ')' F G '{' statements . '}'  (71)
 
-	'}'  shift 141
+	'}'  shift 139
 	.  error
 
 
 state 98
 	statement : assignment . ';'  (10)
 
-	';'  shift 142
+	';'  shift 140
 	.  error
 
 
 state 99
-	statement : while_statement . lbl  (13)
-	lbl : .  (124)
+	statement : while_statement . lbl  (12)
+	lbl : .  (123)
 
-	.  reduce 124
+	.  reduce 123
 
-	lbl  goto 143
+	lbl  goto 141
 
 
 state 100
-	statement : for_statement . lbl  (14)
-	lbl : .  (124)
+	statement : for_statement . lbl  (13)
+	lbl : .  (123)
 
-	.  reduce 124
+	.  reduce 123
 
-	lbl  goto 144
+	lbl  goto 142
 
 
 state 101
 	statement : declaration . ';'  (9)
 
-	';'  shift 145
+	';'  shift 143
 	.  error
 
 
 state 102
-	prefix_expression : prefix_op . postfix_expression  (105)
+	prefix_expression : prefix_op . postfix_expression  (100)
 
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	.  error
 
 	terminal  goto 90
-	postfix_expression  goto 146
+	postfix_expression  goto 144
 
 
 state 103
 	statement : return . ';'  (8)
 
-	';'  shift 147
+	';'  shift 145
 	.  error
 
 
 state 104
-	statement : call . ';'  (11)
+	opt_expression : assignment .  (84)
 
-	';'  shift 148
-	.  error
+	.  reduce 84
 
 
 state 105
-	terminal : IDENTIFIER .  (122)
+	return : RETURN opt_expression .  (14)
 
-	.  reduce 122
+	.  reduce 14
 
 
 state 106
-	opt_expression : assignment .  (91)
+	while_statement : WHILE '(' . lbl expression ')' lbl statement jump  (81)
+	lbl : .  (123)
 
-	.  reduce 91
+	.  reduce 123
+
+	lbl  goto 146
 
 
 state 107
-	return : RETURN opt_expression .  (15)
-
-	.  reduce 15
-
-
-state 108
-	while_statement : WHILE '(' . lbl expression ')' lbl statement jump  (88)
-	lbl : .  (124)
-
-	.  reduce 124
-
-	lbl  goto 149
-
-
-state 109
-	for_statement : FOR '(' . opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (89)
-	opt_expression : .  (90)
+	for_statement : FOR '(' . opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (82)
+	opt_expression : .  (83)
 
 	INCR  shift 74
 	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	'&'  shift 81
 	'+'  shift 82
 	'-'  shift 83
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 90
+	';'  reduce 83
 
 	logical_or  goto 88
 	logical_and  goto 89
@@ -1375,20 +1340,20 @@ state 109
 	additive_expression  goto 93
 	postfix_expression  goto 95
 	prefix_expression  goto 96
-	assignment  goto 106
-	opt_expression  goto 150
+	assignment  goto 104
+	opt_expression  goto 147
 	prefix_op  goto 102
 
 
-state 110
-	if_statement : IF '(' . expression ')' lbl statement  (87)
+state 108
+	if_statement : IF '(' . expression ')' lbl statement  (80)
 
 	INCR  shift 74
 	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	'&'  shift 81
 	'+'  shift 82
 	'-'  shift 83
@@ -1400,82 +1365,72 @@ state 110
 	logical_or  goto 88
 	logical_and  goto 89
 	terminal  goto 90
-	expression  goto 151
+	expression  goto 148
 	multiplicative_expression  goto 92
 	additive_expression  goto 93
-	postfix_expression  goto 152
+	postfix_expression  goto 149
 	prefix_expression  goto 96
 	prefix_op  goto 102
 
 
+state 109
+	prefix_expression : INCR postfix_expression .  (101)
+	postfix_expression : postfix_expression . '[' expression ']'  (113)
+	postfix_expression : postfix_expression . '(' assignments ')'  (114)
+	postfix_expression : postfix_expression . INCR  (115)
+	postfix_expression : postfix_expression . DECR  (116)
+	postfix_expression : postfix_expression . '.' IDENTIFIER  (117)
+	postfix_expression : postfix_expression . DEREF IDENTIFIER  (118)
+
+	DEREF  shift 120
+	INCR  shift 131
+	DECR  shift 132
+	'['  shift 134
+	'('  shift 136
+	'.'  shift 137
+	LAND  reduce 101
+	LOR  reduce 101
+	';'  reduce 101
+	','  reduce 101
+	'*'  reduce 101
+	']'  reduce 101
+	')'  reduce 101
+	'+'  reduce 101
+	'-'  reduce 101
+	'/'  reduce 101
+
+
+state 110
+	prefix_expression : DECR postfix_expression .  (102)
+	postfix_expression : postfix_expression . '[' expression ']'  (113)
+	postfix_expression : postfix_expression . '(' assignments ')'  (114)
+	postfix_expression : postfix_expression . INCR  (115)
+	postfix_expression : postfix_expression . DECR  (116)
+	postfix_expression : postfix_expression . '.' IDENTIFIER  (117)
+	postfix_expression : postfix_expression . DEREF IDENTIFIER  (118)
+
+	DEREF  shift 120
+	INCR  shift 131
+	DECR  shift 132
+	'['  shift 134
+	'('  shift 136
+	'.'  shift 137
+	LAND  reduce 102
+	LOR  reduce 102
+	';'  reduce 102
+	','  reduce 102
+	'*'  reduce 102
+	']'  reduce 102
+	')'  reduce 102
+	'+'  reduce 102
+	'-'  reduce 102
+	'/'  reduce 102
+
+
 state 111
-	prefix_expression : INCR postfix_expression .  (106)
-	postfix_expression : postfix_expression . '[' expression ']'  (115)
-	postfix_expression : postfix_expression . INCR  (116)
-	postfix_expression : postfix_expression . DECR  (117)
-	postfix_expression : postfix_expression . '.' IDENTIFIER  (118)
-	postfix_expression : postfix_expression . DEREF IDENTIFIER  (119)
-
-	DEREF  shift 123
-	INCR  shift 134
-	DECR  shift 135
-	'['  shift 137
-	'.'  shift 139
-	LAND  reduce 106
-	LOR  reduce 106
-	';'  reduce 106
-	')'  reduce 106
-	'*'  reduce 106
-	']'  reduce 106
-	'+'  reduce 106
-	'-'  reduce 106
-	'/'  reduce 106
-
-
-state 112
-	prefix_expression : DECR postfix_expression .  (107)
-	postfix_expression : postfix_expression . '[' expression ']'  (115)
-	postfix_expression : postfix_expression . INCR  (116)
-	postfix_expression : postfix_expression . DECR  (117)
-	postfix_expression : postfix_expression . '.' IDENTIFIER  (118)
-	postfix_expression : postfix_expression . DEREF IDENTIFIER  (119)
-
-	DEREF  shift 123
-	INCR  shift 134
-	DECR  shift 135
-	'['  shift 137
-	'.'  shift 139
-	LAND  reduce 107
-	LOR  reduce 107
-	';'  reduce 107
-	')'  reduce 107
-	'*'  reduce 107
-	']'  reduce 107
-	'+'  reduce 107
-	'-'  reduce 107
-	'/'  reduce 107
-
-
-state 113
-	call : IDENTIFIER '(' . call_list ')'  (20)
-	call_list : .  (17)
-	addresses : .  (57)
-
-	'*'  shift 25
-	'&'  shift 26
-	IDENTIFIER  reduce 57
-	','  reduce 17
-	')'  reduce 17
-
-	var  goto 153
-	addresses  goto 29
-	call_list  goto 154
-
-
-state 114
 	statements : '{' P . statements '}' Q  (6)
 	statements : .  (5)
-	return : .  (16)
+	return : .  (15)
 
 	RETURN  shift 70
 	SIGNED  shift 1
@@ -1507,7 +1462,7 @@ state 114
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 16
+	';'  reduce 15
 	'}'  reduce 5
 
 	statement  goto 87
@@ -1520,7 +1475,7 @@ state 114
 	if_statement  goto 94
 	postfix_expression  goto 95
 	prefix_expression  goto 96
-	statements  goto 155
+	statements  goto 150
 	assignment  goto 98
 	while_statement  goto 99
 	for_statement  goto 100
@@ -1530,209 +1485,372 @@ state 114
 	type_specifier  goto 19
 	prefix_op  goto 102
 	return  goto 103
-	call  goto 104
 	compoundtype  goto 21
 	struct_or_union  goto 22
 
 
-state 115
+state 112
 	statements : statement statements .  (7)
 
 	.  reduce 7
 
 
+state 113
+	logical_or : logical_or LOR . lbl logical_and  (90)
+	lbl : .  (123)
+
+	.  reduce 123
+
+	lbl  goto 151
+
+
+state 114
+	logical_and : logical_and LAND . lbl additive_expression  (92)
+	lbl : .  (123)
+
+	.  reduce 123
+
+	lbl  goto 152
+
+
+state 115
+	multiplicative_expression : multiplicative_expression '*' . postfix_expression  (97)
+
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
+	.  error
+
+	terminal  goto 90
+	postfix_expression  goto 153
+
+
 state 116
-	logical_or : logical_or LOR . lbl logical_and  (95)
-	lbl : .  (124)
+	multiplicative_expression : multiplicative_expression '/' . postfix_expression  (98)
 
-	.  reduce 124
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
+	.  error
 
-	lbl  goto 156
+	terminal  goto 90
+	postfix_expression  goto 154
 
 
 state 117
-	logical_and : logical_and LAND . lbl additive_expression  (97)
-	lbl : .  (124)
+	additive_expression : additive_expression '+' . multiplicative_expression  (94)
 
-	.  reduce 124
+	INCR  shift 74
+	DECR  shift 75
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
+	'&'  shift 81
+	'+'  shift 82
+	'-'  shift 83
+	'|'  shift 84
+	'~'  shift 85
+	'!'  shift 86
+	.  error
 
-	lbl  goto 157
+	terminal  goto 90
+	multiplicative_expression  goto 155
+	postfix_expression  goto 149
+	prefix_expression  goto 96
+	prefix_op  goto 102
 
 
 state 118
-	multiplicative_expression : multiplicative_expression '*' . postfix_expression  (102)
+	additive_expression : additive_expression '-' . multiplicative_expression  (95)
 
+	INCR  shift 74
+	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
+	'&'  shift 81
+	'+'  shift 82
+	'-'  shift 83
+	'|'  shift 84
+	'~'  shift 85
+	'!'  shift 86
 	.  error
 
 	terminal  goto 90
-	postfix_expression  goto 158
+	multiplicative_expression  goto 156
+	postfix_expression  goto 149
+	prefix_expression  goto 96
+	prefix_op  goto 102
 
 
 state 119
-	multiplicative_expression : multiplicative_expression '/' . postfix_expression  (103)
+	statement : if_statement lbl .  (11)
 
-	TRUE  shift 76
-	FALSE  shift 77
-	NUMBER  shift 78
-	IDENTIFIER  shift 105
-	.  error
-
-	terminal  goto 90
-	postfix_expression  goto 159
+	.  reduce 11
 
 
 state 120
-	additive_expression : additive_expression '+' . multiplicative_expression  (99)
+	postfix_expression : postfix_expression DEREF . IDENTIFIER  (118)
 
-	INCR  shift 74
-	DECR  shift 75
-	TRUE  shift 76
-	FALSE  shift 77
-	NUMBER  shift 78
-	IDENTIFIER  shift 105
-	'&'  shift 81
-	'+'  shift 82
-	'-'  shift 83
-	'|'  shift 84
-	'~'  shift 85
-	'!'  shift 86
+	IDENTIFIER  shift 157
 	.  error
-
-	terminal  goto 90
-	multiplicative_expression  goto 160
-	postfix_expression  goto 152
-	prefix_expression  goto 96
-	prefix_op  goto 102
 
 
 state 121
-	additive_expression : additive_expression '-' . multiplicative_expression  (100)
+	assign_oper : MULEQ .  (62)
 
-	INCR  shift 74
-	DECR  shift 75
-	TRUE  shift 76
-	FALSE  shift 77
-	NUMBER  shift 78
-	IDENTIFIER  shift 105
-	'&'  shift 81
-	'+'  shift 82
-	'-'  shift 83
-	'|'  shift 84
-	'~'  shift 85
-	'!'  shift 86
-	.  error
-
-	terminal  goto 90
-	multiplicative_expression  goto 161
-	postfix_expression  goto 152
-	prefix_expression  goto 96
-	prefix_op  goto 102
+	.  reduce 62
 
 
 state 122
-	statement : if_statement lbl .  (12)
+	assign_oper : DIVEQ .  (63)
 
-	.  reduce 12
+	.  reduce 63
 
 
 state 123
-	postfix_expression : postfix_expression DEREF . IDENTIFIER  (119)
+	assign_oper : MODEQ .  (64)
 
-	IDENTIFIER  shift 162
-	.  error
+	.  reduce 64
 
 
 state 124
-	assign_oper : MULEQ .  (69)
+	assign_oper : ADDEQ .  (60)
 
-	.  reduce 69
+	.  reduce 60
 
 
 state 125
-	assign_oper : DIVEQ .  (70)
+	assign_oper : SUBEQ .  (61)
 
-	.  reduce 70
+	.  reduce 61
 
 
 state 126
-	assign_oper : MODEQ .  (71)
+	assign_oper : LSHIFTEQ .  (65)
 
-	.  reduce 71
+	.  reduce 65
 
 
 state 127
-	assign_oper : ADDEQ .  (67)
-
-	.  reduce 67
-
-
-state 128
-	assign_oper : SUBEQ .  (68)
-
-	.  reduce 68
-
-
-state 129
-	assign_oper : LSHIFTEQ .  (72)
-
-	.  reduce 72
-
-
-state 130
-	assign_oper : RSHIFTEQ .  (73)
-
-	.  reduce 73
-
-
-state 131
-	assign_oper : ANDEQ .  (74)
-
-	.  reduce 74
-
-
-state 132
-	assign_oper : XOREQ .  (75)
-
-	.  reduce 75
-
-
-state 133
-	assign_oper : OREQ .  (76)
-
-	.  reduce 76
-
-
-state 134
-	postfix_expression : postfix_expression INCR .  (116)
-
-	.  reduce 116
-
-
-state 135
-	postfix_expression : postfix_expression DECR .  (117)
-
-	.  reduce 117
-
-
-state 136
-	assign_oper : NEQ .  (66)
+	assign_oper : RSHIFTEQ .  (66)
 
 	.  reduce 66
 
 
-state 137
-	postfix_expression : postfix_expression '[' . expression ']'  (115)
+state 128
+	assign_oper : ANDEQ .  (67)
+
+	.  reduce 67
+
+
+state 129
+	assign_oper : XOREQ .  (68)
+
+	.  reduce 68
+
+
+state 130
+	assign_oper : OREQ .  (69)
+
+	.  reduce 69
+
+
+state 131
+	postfix_expression : postfix_expression INCR .  (115)
+
+	.  reduce 115
+
+
+state 132
+	postfix_expression : postfix_expression DECR .  (116)
+
+	.  reduce 116
+
+
+state 133
+	assign_oper : NEQ .  (59)
+
+	.  reduce 59
+
+
+state 134
+	postfix_expression : postfix_expression '[' . expression ']'  (113)
 
 	INCR  shift 74
 	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
+	'&'  shift 81
+	'+'  shift 82
+	'-'  shift 83
+	'|'  shift 84
+	'~'  shift 85
+	'!'  shift 86
+	.  error
+
+	logical_or  goto 88
+	logical_and  goto 89
+	terminal  goto 90
+	expression  goto 158
+	multiplicative_expression  goto 92
+	additive_expression  goto 93
+	postfix_expression  goto 149
+	prefix_expression  goto 96
+	prefix_op  goto 102
+
+
+state 135
+	assign_oper : '=' .  (58)
+
+	.  reduce 58
+
+
+state 136
+	postfix_expression : postfix_expression '(' . assignments ')'  (114)
+	assignments : .  (109)
+
+	INCR  shift 74
+	DECR  shift 75
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
+	'&'  shift 81
+	'+'  shift 82
+	'-'  shift 83
+	'|'  shift 84
+	'~'  shift 85
+	'!'  shift 86
+	')'  reduce 109
+
+	logical_or  goto 88
+	logical_and  goto 89
+	terminal  goto 90
+	expression  goto 91
+	multiplicative_expression  goto 92
+	additive_expression  goto 93
+	postfix_expression  goto 95
+	prefix_expression  goto 96
+	assignment  goto 159
+	assignments  goto 160
+	prefix_op  goto 102
+
+
+state 137
+	postfix_expression : postfix_expression '.' . IDENTIFIER  (117)
+
+	IDENTIFIER  shift 161
+	.  error
+
+
+state 138
+	assignment : postfix_expression assign_oper . assignment  (87)
+
+	INCR  shift 74
+	DECR  shift 75
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
+	'&'  shift 81
+	'+'  shift 82
+	'-'  shift 83
+	'|'  shift 84
+	'~'  shift 85
+	'!'  shift 86
+	.  error
+
+	logical_or  goto 88
+	logical_and  goto 89
+	terminal  goto 90
+	expression  goto 91
+	multiplicative_expression  goto 92
+	additive_expression  goto 93
+	postfix_expression  goto 95
+	prefix_expression  goto 96
+	assignment  goto 162
+	prefix_op  goto 102
+
+
+state 139
+	function : declaration E '(' P param_list ')' F G '{' statements '}' .  (71)
+
+	.  reduce 71
+
+
+state 140
+	statement : assignment ';' .  (10)
+
+	.  reduce 10
+
+
+state 141
+	statement : while_statement lbl .  (12)
+
+	.  reduce 12
+
+
+state 142
+	statement : for_statement lbl .  (13)
+
+	.  reduce 13
+
+
+state 143
+	statement : declaration ';' .  (9)
+
+	.  reduce 9
+
+
+state 144
+	prefix_expression : prefix_op postfix_expression .  (100)
+	postfix_expression : postfix_expression . '[' expression ']'  (113)
+	postfix_expression : postfix_expression . '(' assignments ')'  (114)
+	postfix_expression : postfix_expression . INCR  (115)
+	postfix_expression : postfix_expression . DECR  (116)
+	postfix_expression : postfix_expression . '.' IDENTIFIER  (117)
+	postfix_expression : postfix_expression . DEREF IDENTIFIER  (118)
+
+	DEREF  shift 120
+	INCR  shift 131
+	DECR  shift 132
+	'['  shift 134
+	'('  shift 136
+	'.'  shift 137
+	LAND  reduce 100
+	LOR  reduce 100
+	';'  reduce 100
+	','  reduce 100
+	'*'  reduce 100
+	']'  reduce 100
+	')'  reduce 100
+	'+'  reduce 100
+	'-'  reduce 100
+	'/'  reduce 100
+
+
+state 145
+	statement : return ';' .  (8)
+
+	.  reduce 8
+
+
+state 146
+	while_statement : WHILE '(' lbl . expression ')' lbl statement jump  (81)
+
+	INCR  shift 74
+	DECR  shift 75
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
 	'&'  shift 81
 	'+'  shift 82
 	'-'  shift 83
@@ -1747,216 +1865,68 @@ state 137
 	expression  goto 163
 	multiplicative_expression  goto 92
 	additive_expression  goto 93
-	postfix_expression  goto 152
+	postfix_expression  goto 149
 	prefix_expression  goto 96
 	prefix_op  goto 102
-
-
-state 138
-	assign_oper : '=' .  (65)
-
-	.  reduce 65
-
-
-state 139
-	postfix_expression : postfix_expression '.' . IDENTIFIER  (118)
-
-	IDENTIFIER  shift 164
-	.  error
-
-
-state 140
-	assignment : postfix_expression assign_oper . assignment  (64)
-
-	INCR  shift 74
-	DECR  shift 75
-	TRUE  shift 76
-	FALSE  shift 77
-	NUMBER  shift 78
-	IDENTIFIER  shift 105
-	'&'  shift 81
-	'+'  shift 82
-	'-'  shift 83
-	'|'  shift 84
-	'~'  shift 85
-	'!'  shift 86
-	.  error
-
-	logical_or  goto 88
-	logical_and  goto 89
-	terminal  goto 90
-	expression  goto 91
-	multiplicative_expression  goto 92
-	additive_expression  goto 93
-	postfix_expression  goto 95
-	prefix_expression  goto 96
-	assignment  goto 165
-	prefix_op  goto 102
-
-
-state 141
-	function : declaration E '(' P param_list ')' F G '{' statements '}' .  (78)
-
-	.  reduce 78
-
-
-state 142
-	statement : assignment ';' .  (10)
-
-	.  reduce 10
-
-
-state 143
-	statement : while_statement lbl .  (13)
-
-	.  reduce 13
-
-
-state 144
-	statement : for_statement lbl .  (14)
-
-	.  reduce 14
-
-
-state 145
-	statement : declaration ';' .  (9)
-
-	.  reduce 9
-
-
-state 146
-	prefix_expression : prefix_op postfix_expression .  (105)
-	postfix_expression : postfix_expression . '[' expression ']'  (115)
-	postfix_expression : postfix_expression . INCR  (116)
-	postfix_expression : postfix_expression . DECR  (117)
-	postfix_expression : postfix_expression . '.' IDENTIFIER  (118)
-	postfix_expression : postfix_expression . DEREF IDENTIFIER  (119)
-
-	DEREF  shift 123
-	INCR  shift 134
-	DECR  shift 135
-	'['  shift 137
-	'.'  shift 139
-	LAND  reduce 105
-	LOR  reduce 105
-	';'  reduce 105
-	')'  reduce 105
-	'*'  reduce 105
-	']'  reduce 105
-	'+'  reduce 105
-	'-'  reduce 105
-	'/'  reduce 105
 
 
 state 147
-	statement : return ';' .  (8)
+	for_statement : FOR '(' opt_expression . ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (82)
 
-	.  reduce 8
+	';'  shift 164
+	.  error
 
 
 state 148
-	statement : call ';' .  (11)
+	if_statement : IF '(' expression . ')' lbl statement  (80)
 
-	.  reduce 11
+	')'  shift 165
+	.  error
 
 
 state 149
-	while_statement : WHILE '(' lbl . expression ')' lbl statement jump  (88)
+	prefix_expression : postfix_expression .  (99)
+	postfix_expression : postfix_expression . '[' expression ']'  (113)
+	postfix_expression : postfix_expression . '(' assignments ')'  (114)
+	postfix_expression : postfix_expression . INCR  (115)
+	postfix_expression : postfix_expression . DECR  (116)
+	postfix_expression : postfix_expression . '.' IDENTIFIER  (117)
+	postfix_expression : postfix_expression . DEREF IDENTIFIER  (118)
 
-	INCR  shift 74
-	DECR  shift 75
-	TRUE  shift 76
-	FALSE  shift 77
-	NUMBER  shift 78
-	IDENTIFIER  shift 105
-	'&'  shift 81
-	'+'  shift 82
-	'-'  shift 83
-	'|'  shift 84
-	'~'  shift 85
-	'!'  shift 86
-	.  error
-
-	logical_or  goto 88
-	logical_and  goto 89
-	terminal  goto 90
-	expression  goto 166
-	multiplicative_expression  goto 92
-	additive_expression  goto 93
-	postfix_expression  goto 152
-	prefix_expression  goto 96
-	prefix_op  goto 102
+	DEREF  shift 120
+	INCR  shift 131
+	DECR  shift 132
+	'['  shift 134
+	'('  shift 136
+	'.'  shift 137
+	LAND  reduce 99
+	LOR  reduce 99
+	';'  reduce 99
+	','  reduce 99
+	'*'  reduce 99
+	']'  reduce 99
+	')'  reduce 99
+	'+'  reduce 99
+	'-'  reduce 99
+	'/'  reduce 99
 
 
 state 150
-	for_statement : FOR '(' opt_expression . ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (89)
+	statements : '{' P statements . '}' Q  (6)
 
-	';'  shift 167
+	'}'  shift 166
 	.  error
 
 
 state 151
-	if_statement : IF '(' expression . ')' lbl statement  (87)
-
-	')'  shift 168
-	.  error
-
-
-state 152
-	prefix_expression : postfix_expression .  (104)
-	postfix_expression : postfix_expression . '[' expression ']'  (115)
-	postfix_expression : postfix_expression . INCR  (116)
-	postfix_expression : postfix_expression . DECR  (117)
-	postfix_expression : postfix_expression . '.' IDENTIFIER  (118)
-	postfix_expression : postfix_expression . DEREF IDENTIFIER  (119)
-
-	DEREF  shift 123
-	INCR  shift 134
-	DECR  shift 135
-	'['  shift 137
-	'.'  shift 139
-	LAND  reduce 104
-	LOR  reduce 104
-	';'  reduce 104
-	')'  reduce 104
-	'*'  reduce 104
-	']'  reduce 104
-	'+'  reduce 104
-	'-'  reduce 104
-	'/'  reduce 104
-
-
-state 153
-	call_list : var .  (18)
-
-	.  reduce 18
-
-
-state 154
-	call_list : call_list . ',' var  (19)
-	call : IDENTIFIER '(' call_list . ')'  (20)
-
-	','  shift 169
-	')'  shift 170
-	.  error
-
-
-state 155
-	statements : '{' P statements . '}' Q  (6)
-
-	'}'  shift 171
-	.  error
-
-
-state 156
-	logical_or : logical_or LOR lbl . logical_and  (95)
+	logical_or : logical_or LOR lbl . logical_and  (90)
 
 	INCR  shift 74
 	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	'&'  shift 81
 	'+'  shift 82
 	'-'  shift 83
@@ -1965,24 +1935,24 @@ state 156
 	'!'  shift 86
 	.  error
 
-	logical_and  goto 172
+	logical_and  goto 167
 	terminal  goto 90
 	multiplicative_expression  goto 92
 	additive_expression  goto 93
-	postfix_expression  goto 152
+	postfix_expression  goto 149
 	prefix_expression  goto 96
 	prefix_op  goto 102
 
 
-state 157
-	logical_and : logical_and LAND lbl . additive_expression  (97)
+state 152
+	logical_and : logical_and LAND lbl . additive_expression  (92)
 
 	INCR  shift 74
 	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	'&'  shift 81
 	'+'  shift 82
 	'-'  shift 83
@@ -1993,226 +1963,224 @@ state 157
 
 	terminal  goto 90
 	multiplicative_expression  goto 92
-	additive_expression  goto 173
-	postfix_expression  goto 152
+	additive_expression  goto 168
+	postfix_expression  goto 149
 	prefix_expression  goto 96
 	prefix_op  goto 102
 
 
-state 158
-	multiplicative_expression : multiplicative_expression '*' postfix_expression .  (102)
-	postfix_expression : postfix_expression . '[' expression ']'  (115)
-	postfix_expression : postfix_expression . INCR  (116)
-	postfix_expression : postfix_expression . DECR  (117)
-	postfix_expression : postfix_expression . '.' IDENTIFIER  (118)
-	postfix_expression : postfix_expression . DEREF IDENTIFIER  (119)
+state 153
+	multiplicative_expression : multiplicative_expression '*' postfix_expression .  (97)
+	postfix_expression : postfix_expression . '[' expression ']'  (113)
+	postfix_expression : postfix_expression . '(' assignments ')'  (114)
+	postfix_expression : postfix_expression . INCR  (115)
+	postfix_expression : postfix_expression . DECR  (116)
+	postfix_expression : postfix_expression . '.' IDENTIFIER  (117)
+	postfix_expression : postfix_expression . DEREF IDENTIFIER  (118)
 
-	DEREF  shift 123
-	INCR  shift 134
-	DECR  shift 135
-	'['  shift 137
-	'.'  shift 139
-	LAND  reduce 102
-	LOR  reduce 102
-	';'  reduce 102
-	')'  reduce 102
-	'*'  reduce 102
-	']'  reduce 102
-	'+'  reduce 102
-	'-'  reduce 102
-	'/'  reduce 102
-
-
-state 159
-	multiplicative_expression : multiplicative_expression '/' postfix_expression .  (103)
-	postfix_expression : postfix_expression . '[' expression ']'  (115)
-	postfix_expression : postfix_expression . INCR  (116)
-	postfix_expression : postfix_expression . DECR  (117)
-	postfix_expression : postfix_expression . '.' IDENTIFIER  (118)
-	postfix_expression : postfix_expression . DEREF IDENTIFIER  (119)
-
-	DEREF  shift 123
-	INCR  shift 134
-	DECR  shift 135
-	'['  shift 137
-	'.'  shift 139
-	LAND  reduce 103
-	LOR  reduce 103
-	';'  reduce 103
-	')'  reduce 103
-	'*'  reduce 103
-	']'  reduce 103
-	'+'  reduce 103
-	'-'  reduce 103
-	'/'  reduce 103
+	DEREF  shift 120
+	INCR  shift 131
+	DECR  shift 132
+	'['  shift 134
+	'('  shift 136
+	'.'  shift 137
+	LAND  reduce 97
+	LOR  reduce 97
+	';'  reduce 97
+	','  reduce 97
+	'*'  reduce 97
+	']'  reduce 97
+	')'  reduce 97
+	'+'  reduce 97
+	'-'  reduce 97
+	'/'  reduce 97
 
 
-state 160
-	additive_expression : additive_expression '+' multiplicative_expression .  (99)
-	multiplicative_expression : multiplicative_expression . '*' postfix_expression  (102)
-	multiplicative_expression : multiplicative_expression . '/' postfix_expression  (103)
+state 154
+	multiplicative_expression : multiplicative_expression '/' postfix_expression .  (98)
+	postfix_expression : postfix_expression . '[' expression ']'  (113)
+	postfix_expression : postfix_expression . '(' assignments ')'  (114)
+	postfix_expression : postfix_expression . INCR  (115)
+	postfix_expression : postfix_expression . DECR  (116)
+	postfix_expression : postfix_expression . '.' IDENTIFIER  (117)
+	postfix_expression : postfix_expression . DEREF IDENTIFIER  (118)
 
-	'*'  shift 118
-	'/'  shift 119
-	LAND  reduce 99
-	LOR  reduce 99
-	';'  reduce 99
-	')'  reduce 99
-	']'  reduce 99
-	'+'  reduce 99
-	'-'  reduce 99
-
-
-state 161
-	additive_expression : additive_expression '-' multiplicative_expression .  (100)
-	multiplicative_expression : multiplicative_expression . '*' postfix_expression  (102)
-	multiplicative_expression : multiplicative_expression . '/' postfix_expression  (103)
-
-	'*'  shift 118
-	'/'  shift 119
-	LAND  reduce 100
-	LOR  reduce 100
-	';'  reduce 100
-	')'  reduce 100
-	']'  reduce 100
-	'+'  reduce 100
-	'-'  reduce 100
+	DEREF  shift 120
+	INCR  shift 131
+	DECR  shift 132
+	'['  shift 134
+	'('  shift 136
+	'.'  shift 137
+	LAND  reduce 98
+	LOR  reduce 98
+	';'  reduce 98
+	','  reduce 98
+	'*'  reduce 98
+	']'  reduce 98
+	')'  reduce 98
+	'+'  reduce 98
+	'-'  reduce 98
+	'/'  reduce 98
 
 
-state 162
-	postfix_expression : postfix_expression DEREF IDENTIFIER .  (119)
+state 155
+	additive_expression : additive_expression '+' multiplicative_expression .  (94)
+	multiplicative_expression : multiplicative_expression . '*' postfix_expression  (97)
+	multiplicative_expression : multiplicative_expression . '/' postfix_expression  (98)
 
-	.  reduce 119
+	'*'  shift 115
+	'/'  shift 116
+	LAND  reduce 94
+	LOR  reduce 94
+	';'  reduce 94
+	','  reduce 94
+	']'  reduce 94
+	')'  reduce 94
+	'+'  reduce 94
+	'-'  reduce 94
 
 
-state 163
-	postfix_expression : postfix_expression '[' expression . ']'  (115)
+state 156
+	additive_expression : additive_expression '-' multiplicative_expression .  (95)
+	multiplicative_expression : multiplicative_expression . '*' postfix_expression  (97)
+	multiplicative_expression : multiplicative_expression . '/' postfix_expression  (98)
 
-	']'  shift 174
-	.  error
+	'*'  shift 115
+	'/'  shift 116
+	LAND  reduce 95
+	LOR  reduce 95
+	';'  reduce 95
+	','  reduce 95
+	']'  reduce 95
+	')'  reduce 95
+	'+'  reduce 95
+	'-'  reduce 95
 
 
-state 164
-	postfix_expression : postfix_expression '.' IDENTIFIER .  (118)
+state 157
+	postfix_expression : postfix_expression DEREF IDENTIFIER .  (118)
 
 	.  reduce 118
 
 
-state 165
-	assignment : postfix_expression assign_oper assignment .  (64)
+state 158
+	postfix_expression : postfix_expression '[' expression . ']'  (113)
 
-	.  reduce 64
-
-
-state 166
-	while_statement : WHILE '(' lbl expression . ')' lbl statement jump  (88)
-
-	')'  shift 175
+	']'  shift 169
 	.  error
 
 
+state 159
+	assignments : assignment .  (110)
+	assignments : assignment . ',' assignments  (111)
+
+	','  shift 170
+	')'  reduce 110
+
+
+state 160
+	postfix_expression : postfix_expression '(' assignments . ')'  (114)
+
+	')'  shift 171
+	.  error
+
+
+state 161
+	postfix_expression : postfix_expression '.' IDENTIFIER .  (117)
+
+	.  reduce 117
+
+
+state 162
+	assignment : postfix_expression assign_oper assignment .  (87)
+
+	.  reduce 87
+
+
+state 163
+	while_statement : WHILE '(' lbl expression . ')' lbl statement jump  (81)
+
+	')'  shift 172
+	.  error
+
+
+state 164
+	for_statement : FOR '(' opt_expression ';' . lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (82)
+	lbl : .  (123)
+
+	.  reduce 123
+
+	lbl  goto 173
+
+
+state 165
+	if_statement : IF '(' expression ')' . lbl statement  (80)
+	lbl : .  (123)
+
+	.  reduce 123
+
+	lbl  goto 174
+
+
+state 166
+	statements : '{' P statements '}' . Q  (6)
+	Q : .  (76)
+
+	.  reduce 76
+
+	Q  goto 175
+
+
 state 167
-	for_statement : FOR '(' opt_expression ';' . lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (89)
-	lbl : .  (124)
+	logical_or : logical_or LOR lbl logical_and .  (90)
+	logical_and : logical_and . LAND lbl additive_expression  (92)
 
-	.  reduce 124
-
-	lbl  goto 176
+	LAND  shift 114
+	LOR  reduce 90
+	';'  reduce 90
+	','  reduce 90
+	']'  reduce 90
+	')'  reduce 90
 
 
 state 168
-	if_statement : IF '(' expression ')' . lbl statement  (87)
-	lbl : .  (124)
+	logical_and : logical_and LAND lbl additive_expression .  (92)
+	additive_expression : additive_expression . '+' multiplicative_expression  (94)
+	additive_expression : additive_expression . '-' multiplicative_expression  (95)
 
-	.  reduce 124
-
-	lbl  goto 177
+	'+'  shift 117
+	'-'  shift 118
+	LAND  reduce 92
+	LOR  reduce 92
+	';'  reduce 92
+	','  reduce 92
+	']'  reduce 92
+	')'  reduce 92
 
 
 state 169
-	call_list : call_list ',' . var  (19)
-	addresses : .  (57)
+	postfix_expression : postfix_expression '[' expression ']' .  (113)
 
-	'*'  shift 25
-	'&'  shift 26
-	IDENTIFIER  reduce 57
-
-	var  goto 178
-	addresses  goto 29
+	.  reduce 113
 
 
 state 170
-	call : IDENTIFIER '(' call_list ')' .  (20)
-
-	.  reduce 20
-
-
-state 171
-	statements : '{' P statements '}' . Q  (6)
-	Q : .  (83)
-
-	.  reduce 83
-
-	Q  goto 179
-
-
-state 172
-	logical_or : logical_or LOR lbl logical_and .  (95)
-	logical_and : logical_and . LAND lbl additive_expression  (97)
-
-	LAND  shift 117
-	LOR  reduce 95
-	';'  reduce 95
-	')'  reduce 95
-	']'  reduce 95
-
-
-state 173
-	logical_and : logical_and LAND lbl additive_expression .  (97)
-	additive_expression : additive_expression . '+' multiplicative_expression  (99)
-	additive_expression : additive_expression . '-' multiplicative_expression  (100)
-
-	'+'  shift 120
-	'-'  shift 121
-	LAND  reduce 97
-	LOR  reduce 97
-	';'  reduce 97
-	')'  reduce 97
-	']'  reduce 97
-
-
-state 174
-	postfix_expression : postfix_expression '[' expression ']' .  (115)
-
-	.  reduce 115
-
-
-state 175
-	while_statement : WHILE '(' lbl expression ')' . lbl statement jump  (88)
-	lbl : .  (124)
-
-	.  reduce 124
-
-	lbl  goto 180
-
-
-state 176
-	for_statement : FOR '(' opt_expression ';' lbl . opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (89)
-	opt_expression : .  (90)
+	assignments : assignment ',' . assignments  (111)
+	assignments : .  (109)
 
 	INCR  shift 74
 	DECR  shift 75
 	TRUE  shift 76
 	FALSE  shift 77
 	NUMBER  shift 78
-	IDENTIFIER  shift 105
+	IDENTIFIER  shift 79
 	'&'  shift 81
 	'+'  shift 82
 	'-'  shift 83
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 90
+	')'  reduce 109
 
 	logical_or  goto 88
 	logical_and  goto 89
@@ -2222,14 +2190,60 @@ state 176
 	additive_expression  goto 93
 	postfix_expression  goto 95
 	prefix_expression  goto 96
-	assignment  goto 106
-	opt_expression  goto 181
+	assignment  goto 159
+	assignments  goto 176
 	prefix_op  goto 102
 
 
-state 177
-	if_statement : IF '(' expression ')' lbl . statement  (87)
-	return : .  (16)
+state 171
+	postfix_expression : postfix_expression '(' assignments ')' .  (114)
+
+	.  reduce 114
+
+
+state 172
+	while_statement : WHILE '(' lbl expression ')' . lbl statement jump  (81)
+	lbl : .  (123)
+
+	.  reduce 123
+
+	lbl  goto 177
+
+
+state 173
+	for_statement : FOR '(' opt_expression ';' lbl . opt_expression ';' lbl opt_expression jump ')' lbl statement jump  (82)
+	opt_expression : .  (83)
+
+	INCR  shift 74
+	DECR  shift 75
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
+	'&'  shift 81
+	'+'  shift 82
+	'-'  shift 83
+	'|'  shift 84
+	'~'  shift 85
+	'!'  shift 86
+	';'  reduce 83
+
+	logical_or  goto 88
+	logical_and  goto 89
+	terminal  goto 90
+	expression  goto 91
+	multiplicative_expression  goto 92
+	additive_expression  goto 93
+	postfix_expression  goto 95
+	prefix_expression  goto 96
+	assignment  goto 104
+	opt_expression  goto 178
+	prefix_op  goto 102
+
+
+state 174
+	if_statement : IF '(' expression ')' lbl . statement  (80)
+	return : .  (15)
 
 	RETURN  shift 70
 	SIGNED  shift 1
@@ -2260,9 +2274,9 @@ state 177
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 16
+	';'  reduce 15
 
-	statement  goto 182
+	statement  goto 179
 	logical_or  goto 88
 	logical_and  goto 89
 	terminal  goto 90
@@ -2281,26 +2295,25 @@ state 177
 	type_specifier  goto 19
 	prefix_op  goto 102
 	return  goto 103
-	call  goto 104
 	compoundtype  goto 21
 	struct_or_union  goto 22
 
 
-state 178
-	call_list : call_list ',' var .  (19)
-
-	.  reduce 19
-
-
-state 179
+state 175
 	statements : '{' P statements '}' Q .  (6)
 
 	.  reduce 6
 
 
-state 180
-	while_statement : WHILE '(' lbl expression ')' lbl . statement jump  (88)
-	return : .  (16)
+state 176
+	assignments : assignment ',' assignments .  (111)
+
+	.  reduce 111
+
+
+state 177
+	while_statement : WHILE '(' lbl expression ')' lbl . statement jump  (81)
+	return : .  (15)
 
 	RETURN  shift 70
 	SIGNED  shift 1
@@ -2331,9 +2344,9 @@ state 180
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 16
+	';'  reduce 15
 
-	statement  goto 183
+	statement  goto 180
 	logical_or  goto 88
 	logical_and  goto 89
 	terminal  goto 90
@@ -2352,107 +2365,106 @@ state 180
 	type_specifier  goto 19
 	prefix_op  goto 102
 	return  goto 103
-	call  goto 104
 	compoundtype  goto 21
 	struct_or_union  goto 22
 
 
-state 181
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression . ';' lbl opt_expression jump ')' lbl statement jump  (89)
+state 178
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression . ';' lbl opt_expression jump ')' lbl statement jump  (82)
 
-	';'  shift 184
+	';'  shift 181
 	.  error
 
 
-state 182
-	if_statement : IF '(' expression ')' lbl statement .  (87)
+state 179
+	if_statement : IF '(' expression ')' lbl statement .  (80)
 
-	.  reduce 87
+	.  reduce 80
+
+
+state 180
+	while_statement : WHILE '(' lbl expression ')' lbl statement . jump  (81)
+	jump : .  (85)
+
+	.  reduce 85
+
+	jump  goto 182
+
+
+state 181
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' . lbl opt_expression jump ')' lbl statement jump  (82)
+	lbl : .  (123)
+
+	.  reduce 123
+
+	lbl  goto 183
+
+
+state 182
+	while_statement : WHILE '(' lbl expression ')' lbl statement jump .  (81)
+
+	.  reduce 81
 
 
 state 183
-	while_statement : WHILE '(' lbl expression ')' lbl statement . jump  (88)
-	jump : .  (92)
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl . opt_expression jump ')' lbl statement jump  (82)
+	opt_expression : .  (83)
 
-	.  reduce 92
+	INCR  shift 74
+	DECR  shift 75
+	TRUE  shift 76
+	FALSE  shift 77
+	NUMBER  shift 78
+	IDENTIFIER  shift 79
+	'&'  shift 81
+	'+'  shift 82
+	'-'  shift 83
+	'|'  shift 84
+	'~'  shift 85
+	'!'  shift 86
+	')'  reduce 83
+
+	logical_or  goto 88
+	logical_and  goto 89
+	terminal  goto 90
+	expression  goto 91
+	multiplicative_expression  goto 92
+	additive_expression  goto 93
+	postfix_expression  goto 95
+	prefix_expression  goto 96
+	assignment  goto 104
+	opt_expression  goto 184
+	prefix_op  goto 102
+
+
+state 184
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression . jump ')' lbl statement jump  (82)
+	jump : .  (85)
+
+	.  reduce 85
 
 	jump  goto 185
 
 
-state 184
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' . lbl opt_expression jump ')' lbl statement jump  (89)
-	lbl : .  (124)
-
-	.  reduce 124
-
-	lbl  goto 186
-
-
 state 185
-	while_statement : WHILE '(' lbl expression ')' lbl statement jump .  (88)
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump . ')' lbl statement jump  (82)
 
-	.  reduce 88
-
-
-state 186
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl . opt_expression jump ')' lbl statement jump  (89)
-	opt_expression : .  (90)
-
-	INCR  shift 74
-	DECR  shift 75
-	TRUE  shift 76
-	FALSE  shift 77
-	NUMBER  shift 78
-	IDENTIFIER  shift 105
-	'&'  shift 81
-	'+'  shift 82
-	'-'  shift 83
-	'|'  shift 84
-	'~'  shift 85
-	'!'  shift 86
-	')'  reduce 90
-
-	logical_or  goto 88
-	logical_and  goto 89
-	terminal  goto 90
-	expression  goto 91
-	multiplicative_expression  goto 92
-	additive_expression  goto 93
-	postfix_expression  goto 95
-	prefix_expression  goto 96
-	assignment  goto 106
-	opt_expression  goto 187
-	prefix_op  goto 102
-
-
-state 187
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression . jump ')' lbl statement jump  (89)
-	jump : .  (92)
-
-	.  reduce 92
-
-	jump  goto 188
-
-
-state 188
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump . ')' lbl statement jump  (89)
-
-	')'  shift 189
+	')'  shift 186
 	.  error
 
 
-state 189
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' . lbl statement jump  (89)
-	lbl : .  (124)
+state 186
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' . lbl statement jump  (82)
+	lbl : .  (123)
 
-	.  reduce 124
+	.  reduce 123
 
-	lbl  goto 190
+	lbl  goto 187
 
 
-state 190
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl . statement jump  (89)
-	return : .  (16)
+state 187
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl . statement jump  (82)
+	return : .  (15)
 
 	RETURN  shift 70
 	SIGNED  shift 1
@@ -2483,9 +2495,9 @@ state 190
 	'|'  shift 84
 	'~'  shift 85
 	'!'  shift 86
-	';'  reduce 16
+	';'  reduce 15
 
-	statement  goto 191
+	statement  goto 188
 	logical_or  goto 88
 	logical_and  goto 89
 	terminal  goto 90
@@ -2504,33 +2516,32 @@ state 190
 	type_specifier  goto 19
 	prefix_op  goto 102
 	return  goto 103
-	call  goto 104
 	compoundtype  goto 21
 	struct_or_union  goto 22
 
 
-state 191
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement . jump  (89)
-	jump : .  (92)
+state 188
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement . jump  (82)
+	jump : .  (85)
 
-	.  reduce 92
+	.  reduce 85
 
-	jump  goto 192
+	jump  goto 189
 
 
-state 192
-	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump .  (89)
+state 189
+	for_statement : FOR '(' opt_expression ';' lbl opt_expression ';' lbl opt_expression jump ')' lbl statement jump .  (82)
 
-	.  reduce 89
+	.  reduce 82
 
 
 Rules never reduced:
-	storage_specifier : AUTO  (22)
-	storage_specifier : REGISTER  (23)
-	storage_specifier : STATIC  (24)
-	storage_specifier : EXTERN  (25)
-	storage_specifier : TYPEDEF  (26)
+	storage_specifier : AUTO  (17)
+	storage_specifier : REGISTER  (18)
+	storage_specifier : STATIC  (19)
+	storage_specifier : EXTERN  (20)
+	storage_specifier : TYPEDEF  (21)
 
 
-79 terminals, 49 nonterminals
-125 grammar rules, 193 states
+79 terminals, 48 nonterminals
+124 grammar rules, 190 states
